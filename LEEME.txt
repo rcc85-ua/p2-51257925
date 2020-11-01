@@ -42,6 +42,8 @@ Primer paso (sólo hay que hacerlo una vez)
 
   - Bájate el repositorio que has creado
 
+   $ cd p2-2021
+
    $ git clone https://github.com/xxx99-ua/p2-00000000
 
     (donde 'xxx99' es tu email de la UA, y '00000000' tu DNI)
