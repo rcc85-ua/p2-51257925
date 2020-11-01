@@ -80,7 +80,7 @@ simplemente avisa de que lo quieres añadir):
 importante (o encontrado un bug difícil), sube los cambios al repositorio
 con:
 
- $ git commit -m 'Mensaje que explica los cambios'
+ $ git commit -am 'Mensaje que explica los cambios'
   
  $ git push
 
