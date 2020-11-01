@@ -49,6 +49,12 @@ Primer paso (sólo hay que hacerlo una vez)
     (donde 'xxx99' es tu email de la UA, y '00000000' tu DNI)
 
 
+6. Configura el repositorio para guardar tu nombre de usuario y tu email:
+
+   $ git config --local user.name xxx99-ua
+
+   $ git config --local user.email xxx99@alu.ua.es
+
 
 Uso normal en una sesión de trabajo
 ====================================
