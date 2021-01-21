@@ -1,0 +1,14 @@
+# ficheros compilados
+*.o
+
+# ejecutables de las prácticas de Programación 2
+prac1
+prac2
+prac3
+
+# autocorrectores y correctores de Programación 2
+autocorrector-pr*
+corrector-pr*
+
+
+
