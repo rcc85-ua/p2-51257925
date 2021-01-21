@@ -22,7 +22,7 @@ Primer paso (sólo hay que hacerlo una vez)
   (pon tu usuario en vez de 'xxx99')
 
 2. Crear un nuevo repositorio (New repository) privado llamado 
-   p2ua-00000000 (pon tu DNI/NIE sin letras en vez de 00000000)
+   p2-00000000 (pon tu DNI/NIE sin letras en vez de 00000000)
 
 3. Invita a tu profesor de prácticas como colaborador:
   - Entra en el repositorio, pestaña "Settings", opción "Manage access", botón
@@ -55,32 +55,4 @@ Primer paso (sólo hay que hacerlo una vez)
 
    $ git config --local user.email xxx99@alu.ua.es
 
-
-Uso normal en una sesión de trabajo
-====================================
-
-1) Al empezar a trabajar en la práctica, debes asegurarte de que tienes en
-tu repositorio local la última copia (esto es especialmente importante si
-trabajas en varios ordenadores)
-
- $ git pull 
-
-
-2) Si al trabajar añades algún fichero nuevo que quieres que esté en el
-repositorio, debes "avisar" a git con esta orden (que no lo añade,
-simplemente avisa de que lo quieres añadir):
-
- $ git add ficheronuevo
-
-3) Para ver en cualquier momento los cambios que has hecho al repositorio:
-
- $ git status
-
-4) Al acabar la sesión de trabajo, o cuando hayas completado una parte
-importante (o encontrado un bug difícil), sube los cambios al repositorio
-con:
-
- $ git commit -am 'Mensaje que explica los cambios'
-  
- $ git push
 
