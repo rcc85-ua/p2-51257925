@@ -53,22 +53,34 @@ switch(e){
     cout << "ERROR: wrong expected time" << endl;
 }
 }
+/*Comprueba que El nombre introducido no esta vacio*/
+string CompLista(){
+  string nombre;  
+  do{
+    cout << "Enter list name: ";
+    getline(cin,nombre);//Introduce el nombre
+    if(nombre.empty() == true)
+      error(ERR_EMPTY);//Si no se introduce nada entonces error
+  }while(nombre.empty() == true);
+
+  return nombre;
+}
+/*Encuentra en una lista una Task*/
 int FindTask(string borrar,int pos,Project toDoList){
-int resultado = -1;
-for(unsigned i = 0;i < toDoList.lists[pos].tasks.size();i++){
-  if (toDoList.lists[pos].tasks[i].name == borrar){
-    resultado = i;
+  int resultado = -1;
+  //Recorre todo el vector de Tareas de la lista de la posicion pos
+  for(unsigned i = 0;i < toDoList.lists[pos].tasks.size();i++){
+    if (toDoList.lists[pos].tasks[i].name == borrar){
+      resultado = i;
+    }
   }
- }
 return resultado;
 }
+/*Encuentra una Lista en el proyecto*/
 int FindList(string name, Project toDoList){
-unsigned num=-1;
-  do{
-      if(name.empty() == true){
-          error(ERR_EMPTY);
-      }
-  }while(name.empty() == true);
+  unsigned num=-1;
+  //Comprueba que el nombre introducido no esta vacio
+
   for(unsigned i=0;i < toDoList.lists.size();i++){
     if(toDoList.lists[i].name == name){
       num = i;
@@ -76,6 +88,97 @@ unsigned num=-1;
   }
 return num;
 }
+/*Hace las comprobaciones pertinentes de la fecha introducida en la deadline*/
+void CompDeadLine(bool &centinela,Task nueva){
+  if ((nueva.deadline.year>2100 || nueva.deadline.year<1900)){
+    error(ERR_DATE);
+  }
+  switch (nueva.deadline.month){
+    case 1 :
+    case 3 :
+    case 7 :
+    case 8 :
+    case 10:
+    case 12:
+      if(nueva.deadline.day<0 || nueva.deadline.day>31){
+        error(ERR_DATE);
+        centinela = true;
+      }  
+    break;
+    case 2:
+      if((nueva.deadline.year%100 == 0 && nueva.deadline.year%400 == 0) || (nueva.deadline.year%100 != 0 && nueva.deadline.year%4 == 0)){
+        if (nueva.deadline.day<0 || nueva.deadline.day > 29){
+          error(ERR_DATE);
+          centinela = true;
+        }
+      }else{
+        if (nueva.deadline.day<0 || nueva.deadline.day > 28){
+          error(ERR_DATE);
+          centinela = true;
+        }
+      }
+    break;
+    case 4 :
+    case 5 :
+    case 6 :
+    case 9 :
+    case 11:
+      if (nueva.deadline.day<0 || nueva.deadline.day > 30){
+        error(ERR_DATE);
+        centinela = true;
+      }
+    break;
+    default:
+      error(ERR_DATE);
+      centinela = true;
+    break;
+  }
+}
+int convertidor(Date fecha){
+  int final = 0;
+  final = fecha.year*10000+fecha.month*100+fecha.day;
+  return final;
+} 
+
+void contadornX(int &nohecho, int &numnohecho, Project toDoList, int i, int j){
+  nohecho = nohecho + toDoList.lists[i].tasks[j].time;
+  numnohecho++;
+}
+void contadorX(int &hecho,int &numhecho,Project toDoList, int i, int j){
+  hecho = hecho + toDoList.lists[i].tasks[j].time;
+  numhecho++;
+}
+void Imprimidor(Project toDoList, int i, int j, bool &centinela, Date &prioritario, string &nombre,int &numnohecho, int &nohecho, int &numhecho, int &hecho){
+          int fpotencial = 0, furg = 99999999;
+          cout << "[";
+          //Si esta hecho imprimira una X
+          if(toDoList.lists[i].tasks[j].isDone == true){
+            cout << "X";
+            contadorX(hecho, numhecho, toDoList, i, j);
+          //Si no esta hecho simplemente imprimirá un espacio
+          }else{
+            cout << " ";
+            contadornX(nohecho, numnohecho, toDoList, i, j);
+
+          //Convierte el el año,mes y dia en un un entero y lo almacena en potencial
+          fpotencial = convertidor(toDoList.lists[i].tasks[j].deadline);
+          //Si el potencial es el inferior se cambia a que es el mas urgente.
+          
+          if(fpotencial < furg){
+            furg = fpotencial;
+            centinela = true;
+            prioritario = toDoList.lists[i].tasks[j].deadline;
+            nombre = toDoList.lists[i].tasks[j].name;
+          }
+          }
+          //Imprime la informacion del las fechas.          
+          cout << "] (" << toDoList.lists[i].tasks[j].time << ") "
+          << toDoList.lists[i].tasks[j].deadline.year << "-"
+          << toDoList.lists[i].tasks[j].deadline.month << "-"
+          << toDoList.lists[i].tasks[j].deadline.day
+          << " : " << toDoList.lists[i].tasks[j].name << endl;
+      }
+
 void showMainMenu(){
 cout << "1- Edit project" << endl
      << "2- Add list" << endl
@@ -87,60 +190,52 @@ cout << "1- Edit project" << endl
      << "q- Quit" << endl
      << "Option: ";
 }
+
+/*Cambia el nombre del proyecto*/
 void editProject(Project &toDoList){
   string nombre = "";
-   do{
-      cout << "Enter project name: ";
-      getline(cin,nombre);
-  if(nombre.empty()){
-      error(ERR_EMPTY);
-  }
-  }while(nombre.empty());
+  do{
+    cout << "Enter project name: ";
+    getline(cin,nombre);//Introduce el nombre
+    if(nombre.empty() == true)
+      error(ERR_EMPTY);//Si no se introduce nada entonces error
+  }while(nombre.empty() == true);
 toDoList.name = nombre;
 cout << "Enter project description: ";
 getline(cin,toDoList.description);
 }
+
+/*Añade una lista a un proyecto*/
 void addList(Project &toDoList){
   List nuevo;
   nuevo.name = "";
-  //Mira si la lista esta vacia
-  do{
-    cout << "Enter list name :";
-    getline(cin,nuevo.name);
-    if(nuevo.name.empty() == true){
-      error(ERR_EMPTY);
-    }
-  }while(nuevo.name.empty() == true);
+  
+    nuevo.name=CompLista();
     //Mira si la lista estaba anteriormente
     if(FindList(nuevo.name, toDoList) !=  -1){
       error(ERR_LIST_NAME);
     }else{
       toDoList.lists.push_back(nuevo);
-     }
+    }
 }
+/*Borra una Lista de un proyeto*/
 void deleteList(Project &toDoList){
 string borrar = "";
 unsigned num = 0;
-do{
-    cout << "Enter list name: ";
-    getline(cin,borrar);//Introduce el nombre
-    if(borrar.empty() == true)
-    error(ERR_EMPTY);//Si no se introduce nada entonces salta el error
-}while(borrar.empty() == true);
+
+borrar = CompLista();
 num = FindList(borrar, toDoList);//Encuentra la posición de la lista en el vector
 toDoList.lists.erase(toDoList.lists.begin()+num);//Borra la posición encontrada en el vector
 }
+
+
+/*Añade una tarea a una lista*/
 void addTask(Project &toDoList){
 string lista ="";
 int num;
 Task nueva;
 bool centinela = false;
-do{
-  cout << "Enter list name: ";
-  getline(cin, lista);
-  if(lista.empty() ==  true)
-    error(ERR_EMPTY);
-}while(lista.size() == 0);
+lista = CompLista();
 num=FindList(lista, toDoList);
 if(num != -1){
   cout << "Enter task name: ";
@@ -151,49 +246,8 @@ if(num != -1){
   cin >> nueva.deadline.month;
   cin.get();
   cin >> nueva.deadline.year;
-  if ((nueva.deadline.year>2100 || nueva.deadline.year<1900)){
-    error(ERR_DATE);
-  }
-  switch (nueva.deadline.month){
-  case 1 :
-  case 3 :
-  case 7 :
-  case 8 :
-  case 10:
-  case 12:
-  if(nueva.deadline.day<0 || nueva.deadline.day>31){
-    error(ERR_DATE);
-    centinela = true;
-  }
-    break;
-  case 2:
-  if((nueva.deadline.year%100 == 0 && nueva.deadline.year%400 == 0) || (nueva.deadline.year%100 != 0 && nueva.deadline.year%4 == 0)){
-  if (nueva.deadline.day<0 || nueva.deadline.day > 29){
-    error(ERR_DATE);
-    centinela = true;
-  }
-  }else{
-        if (nueva.deadline.day<0 || nueva.deadline.day > 28){
-    error(ERR_DATE);
-    centinela = true;
-        }
-  }
-    break;
-  case 4 :
-  case 5 :
-  case 6 :
-  case 9 :
-  case 11:
-  if (nueva.deadline.day<0 || nueva.deadline.day > 30){
-    error(ERR_DATE);
-    centinela = true;
-  }
-    break;
-  default:
-    error(ERR_DATE);
-    centinela = true;
-    break;
-  }
+
+  CompDeadLine(centinela, nueva);
   if(centinela==false){
     cout << "Enter expected time: ";
     cin >> nueva.time;
@@ -208,17 +262,13 @@ if(num != -1){
   error(ERR_LIST_NAME);
 }
 }
+/*Borra una task de una lista*/
 void deleteTask(Project &toDoList){
 string borrar;
 int Lpos;
 int Tpos;
-do{
-  cout << "Enter list name: ";
-  getline(cin,borrar);
-  if(borrar.empty()){
-    error(ERR_EMPTY);
-  }
-}while (borrar.empty());
+
+borrar = CompLista();
 Lpos=FindList(borrar,toDoList);
 if(Lpos == -1){
   error(ERR_LIST_NAME);
@@ -238,13 +288,8 @@ void toggleTask(Project &toDoList){
 string cambiar;
 int Lpos = -1;
 int Tpos = -1;
-do{
-  cout << "Enter list name: ";
-  getline(cin,cambiar);
-  if(cambiar.empty()){
-    error(ERR_EMPTY);
-  }
-}while (cambiar.empty());
+
+cambiar = CompLista();
 Lpos=FindList(cambiar, toDoList);
 if(Lpos == -1){
   error(ERR_LIST_NAME);
@@ -264,13 +309,13 @@ int hecho = 0;
 int numhecho = 0;
 int nohecho = 0;
 int numnohecho = 0;
-int fpotencial = 0;
-int furg = 0;
+bool centinela = false;
 string nombre ="";
 Date prioritario;
 prioritario.year = 9999;
 prioritario.month = 99;
 prioritario.day = 99;
+
   cout << "Name: " << toDoList.name << endl;
   if(toDoList.description != "")
   cout << "Description: " << toDoList.description << endl;
@@ -279,45 +324,15 @@ prioritario.day = 99;
       cout << toDoList.lists[i].name << endl;
       //Recorre el vector de tasks de list[i]
       for (unsigned j = 0; j < toDoList.lists[i].tasks.size();j++){
-          cout << "[";
-          //Si esta hecho imprimira una X
-          if(toDoList.lists[i].tasks[j].isDone == true){
-            cout << "X";
-            hecho = hecho + toDoList.lists[i].tasks[j].time;
-            numhecho++;
-          //Si no esta hecho simplemente imprimirá un espacio
-          }else{
-            cout << " ";
-            nohecho = nohecho + toDoList.lists[i].tasks[j].time;
-            numnohecho++;
-          }
-          //Convierte el el año,mes y dia en un un entero y lo almacena en potencial
-          fpotencial = toDoList.lists[i].tasks[j].deadline.year*10000+
-          toDoList.lists[i].tasks[j].deadline.month*100+
-          toDoList.lists[i].tasks[j].deadline.day;
-          //Si el potencial es el inferior se cambia a que es el mas urgente.
-          cout << fpotencial << endl;
-          if(fpotencial <= furg){
-            furg = fpotencial;
-            cout << "He llegado";
-            prioritario = toDoList.lists[i].tasks[j].deadline;
-            cout << "Prueba: " << toDoList.lists[i].tasks[j].deadline.day << "-" << toDoList.lists[i].tasks[j].deadline.month << "-" << toDoList.lists[i].tasks[j].deadline.year << endl;
-            nombre = toDoList.lists[i].tasks[j].name;
-          }
-          //Imprime la informacion del las fechas.          
-          cout << "] (" << toDoList.lists[i].tasks[j].time << ") "
-          << toDoList.lists[i].tasks[j].deadline.year << "-"
-          << toDoList.lists[i].tasks[j].deadline.month << "-"
-          << toDoList.lists[i].tasks[j].deadline.day
-          << " : " << toDoList.lists[i].tasks[j].name << endl;
+          Imprimidor(toDoList, i, j, centinela, prioritario, nombre, numnohecho, nohecho, numhecho, hecho);
       }
   }
   //Imprime la cantidad de tasks sin hacer
   cout << "Total left: " << numnohecho << " (" << nohecho << " minutes)" << endl;
   //Imprime la cantidad de tasks hechas
   cout << "Total done: " << numhecho << " (" << hecho << "minutes)" << endl;
-  if(numnohecho>0){
   //Imprime la task con mayor prioridad
+  if(numnohecho > 0){
   cout << "Highest priority: " << nombre << " ("
   << prioritario.year << "-" << prioritario.month << "-"
   << prioritario.day << ")" << endl;
