@@ -82,6 +82,7 @@ int FindTask(string borrar,int pos,Project toDoList){
     for(unsigned i = 0;i < toDoList.lists[pos].tasks.size();i++){
         if (toDoList.lists[pos].tasks[i].name == borrar){
             resultado = i;
+
         }
     }
  
@@ -278,29 +279,34 @@ void addTask(Project &toDoList){
 void deleteTask(Project &toDoList){
     string borrar;
     int Lpos;
-    int Tpos;
-  
+    bool centinela = false;
     borrar = CompLista();
     Lpos=FindList(borrar,toDoList);
- 
+
     if(Lpos == -1){
         error(ERR_LIST_NAME);
     }else{
   
         cout << "Enter task name: ";
         getline(cin, borrar);
-        Tpos=FindTask(borrar, Lpos, toDoList);
-        if (Tpos == -1){
-         error(ERR_TASK_NAME);
-        }else{
-            toDoList.lists[Lpos].tasks.erase(toDoList.lists[Lpos].tasks.begin()+Tpos);
+
+        for(unsigned i = 0; i <= toDoList.lists[Lpos].tasks.size();i++){
+            if(toDoList.lists[Lpos].tasks[i].name == borrar){
+
+                centinela = true;
+                toDoList.lists[Lpos].tasks.erase(toDoList.lists[Lpos].tasks.begin()+i);
+            }
+        }
+        if(centinela == false){
+            error(ERR_TASK_NAME);
         }
     }
 }
 void toggleTask(Project &toDoList){
     string cambiar;
     int Lpos = -1;
-    int Tpos = -1;
+
+    bool centinela = false;
     cambiar = CompLista();
     Lpos=FindList(cambiar, toDoList);
     
@@ -310,14 +316,17 @@ void toggleTask(Project &toDoList){
     }else{
         cout << "Enter task name: ";
         getline(cin, cambiar);
-      
-        Tpos = FindTask(cambiar, Lpos, toDoList);
-      
-        if(Tpos == -1){
-            error(ERR_TASK_NAME);
-        }else{
-            toDoList.lists[Lpos].tasks[Tpos].isDone  = true;
-        }
+        
+            for(unsigned i = 0;i < toDoList.lists[Lpos].tasks.size();i++){
+                if (toDoList.lists[Lpos].tasks[i].name == cambiar){
+                    centinela = true;
+                    toDoList.lists[Lpos].tasks[i].isDone  = true;
+
+                }
+            }
+            if(centinela == false){
+                error(ERR_TASK_NAME);
+            }
     }
 }
  
