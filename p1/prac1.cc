@@ -37,6 +37,7 @@ enum Error{
    ERR_DATE,
    ERR_TIME
 };
+
 void mostrar(Task task);
 void error(Error e){
 switch(e){
@@ -57,6 +58,7 @@ case ERR_DATE:
   break;
 case ERR_TIME:
   cout << "ERROR: wrong expected time" << endl;
+    break;
 }
 }
 /*Comprueba que El nombre introducido no esta vacio*/
@@ -67,12 +69,13 @@ string CompLista(){
         cout << "Enter list name: ";
         getline(cin,nombre);//Introduce el nombre
  
-        if(nombre.empty() == true){
+        if(nombre.empty()){
             error(ERR_EMPTY);//Si no se introduce nada entonces error
         }
           
-    }while(nombre.empty() == true);
-return nombre;
+    }while(nombre.empty());
+
+    return nombre;
 }
 /*Encuentra en una lista una Task*/
 int FindTask(string borrar,int pos,Project toDoList){
@@ -100,53 +103,59 @@ for(unsigned i=0;i < toDoList.lists.size();i++){
 return num;
 }
 /*Hace las comprobaciones pertinentes de la fecha introducida en la deadline*/
-void CompDeadLine(bool &centinela,Task nueva){
-    if ((nueva.deadline.year>2100 || nueva.deadline.year<1900)){
+bool CompDeadLine(Task nueva){
+    bool centinela = false;
+    if ((nueva.deadline.year>2100 || nueva.deadline.year<2000)){
         error(ERR_DATE);
+        centinela = true;
     }
-    switch (nueva.deadline.month){
-        case 1 :
-        case 3 :
-        case 7 :
-        case 8 :
-        case 10:
-        case 12:
-            if(nueva.deadline.day<0 || nueva.deadline.day>31){
-                error(ERR_DATE);
-                centinela = true;
-            }
-        break;
- 
-        case 2:
-            if((nueva.deadline.year%100 == 0 && nueva.deadline.year%400 == 0) || (nueva.deadline.year%100 != 0 && nueva.deadline.year%4 == 0)){
-                if (nueva.deadline.day<0 || nueva.deadline.day > 29){
+    else{
+        switch (nueva.deadline.month){
+            case 1 :
+            case 3 :
+            case 5 :
+            case 7 :
+            case 8 :
+            case 10:
+            case 12:
+                if(nueva.deadline.day<0 || nueva.deadline.day>31){
                     error(ERR_DATE);
                     centinela = true;
                 }
-            }else{
-                if (nueva.deadline.day<0 || nueva.deadline.day > 28){
+                break;
+
+            case 2:
+                if((nueva.deadline.year%100 == 0 && nueva.deadline.year%400 == 0) || (nueva.deadline.year%100 != 0 && nueva.deadline.year%4 == 0)){
+                    if (nueva.deadline.day<0 || nueva.deadline.day > 29){
+                        error(ERR_DATE);
+                        centinela = true;
+                    }
+                }else{
+                    if (nueva.deadline.day<0 || nueva.deadline.day > 28){
+                        error(ERR_DATE);
+                        centinela = true;
+                    }
+                }
+                break;
+
+            case 4 :
+            case 6 :
+            case 9 :
+            case 11:
+                if (nueva.deadline.day<0 || nueva.deadline.day > 30){
                     error(ERR_DATE);
                     centinela = true;
                 }
-            }
-        break;
- 
-        case 4 :
-        case 5 :
-        case 6 :
-        case 9 :
-        case 11:
-            if (nueva.deadline.day<0 || nueva.deadline.day > 30){
+                break;
+
+            default:
                 error(ERR_DATE);
                 centinela = true;
-            }
-        break;
- 
-        default:
-            error(ERR_DATE);
-            centinela = true;
-        break;
-   }
+                break;
+       }
+    }
+
+    return centinela;
 }
 int convertidor(Date fecha){
    int final = 0;
@@ -204,10 +213,10 @@ void editProject(Project &toDoList){
         cout << "Enter project name: ";
         getline(cin,nombre);//Introduce el nombre
       
-        if(nombre.empty() == true)
+        if(nombre.empty())
             error(ERR_EMPTY);//Si no se introduce nada entonces error
     
-    }while(nombre.empty() == true);
+    }while(nombre.empty());
     toDoList.name = nombre;
     cout << "Enter project description: ";
     getline(cin,toDoList.description);
@@ -244,7 +253,7 @@ void addTask(Project &toDoList){
     string lista ="";
     int num;
     Task nueva;
-    bool centinela = false;
+    //bool centinela = false;
     lista = CompLista();
     num=FindList(lista, toDoList);
     
@@ -258,10 +267,13 @@ void addTask(Project &toDoList){
         cin >> nueva.deadline.month;
         cin.get();
         cin >> nueva.deadline.year;
-        CompDeadLine(centinela, nueva);
-        if(centinela==false){
+        cin.ignore();
+
+        if(!CompDeadLine(nueva)){
             cout << "Enter expected time: ";
             cin >> nueva.time;
+            cin.ignore();
+            //cout << nueva.time << endl;
  
             if(nueva.time < 1 || nueva.time > 180){
                 error(ERR_TIME);
@@ -269,6 +281,7 @@ void addTask(Project &toDoList){
             }else{
                 nueva.isDone = false;
                 toDoList.lists[num].tasks.push_back(nueva);
+                //cout << "añadido" << endl;
             }
         }
     }else{
@@ -286,18 +299,18 @@ void deleteTask(Project &toDoList){
     if(Lpos == -1){
         error(ERR_LIST_NAME);
     }else{
-  
         cout << "Enter task name: ";
         getline(cin, borrar);
 
-        for(unsigned i = 0; i <= toDoList.lists[Lpos].tasks.size();i++){
+        for(unsigned i = 0; i < toDoList.lists[Lpos].tasks.size();i++){
             if(toDoList.lists[Lpos].tasks[i].name == borrar){
 
                 centinela = true;
                 toDoList.lists[Lpos].tasks.erase(toDoList.lists[Lpos].tasks.begin()+i);
+                --i;
             }
         }
-        if(centinela == false){
+        if(!centinela){
             error(ERR_TASK_NAME);
         }
     }
@@ -316,15 +329,15 @@ void toggleTask(Project &toDoList){
     }else{
         cout << "Enter task name: ";
         getline(cin, cambiar);
-        
+
             for(unsigned i = 0;i < toDoList.lists[Lpos].tasks.size();i++){
                 if (toDoList.lists[Lpos].tasks[i].name == cambiar){
                     centinela = true;
-                    toDoList.lists[Lpos].tasks[i].isDone  = true;
+                    toDoList.lists[Lpos].tasks[i].isDone = !toDoList.lists[Lpos].tasks[i].isDone;
 
                 }
             }
-            if(centinela == false){
+            if(!centinela){
                 error(ERR_TASK_NAME);
             }
     }
