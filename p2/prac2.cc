@@ -538,12 +538,63 @@ void ProjectMenu(ToDo Proyectos){
         OldMenu(Proyectos.projects[Pos]);
     }
 }
-
-void addProject(){
-
+string compProjectEmpty(){
+    string proyecto
+    do{
+        cout << "Enter Project name: ";
+        getline(cin,proyecto);
+        if(proyecto.empty()){
+            error(ERR_EMPTY);
+        }
+    }
+return proyecto;
 }
 
-void deleteProject(){
+bool compProjectRepeat(ToDo Proyectos,string Posible){
+    bool resultado = false;
+
+    for(unsigned i = 0; i < Proyectos.projects.size();i++){
+        if(Proyectos.projects[i].name == Posible){
+            resultado = true;
+        }
+    }
+}
+void addProject(ToDo LProjects){
+    Project nuevo;
+
+    nuevo.name = compProjectEmpty();
+    if(compProjectRepeat(LProjects, nuevo.name)){
+        error(ERR_PROJECT_NAME);
+    }else{
+        cout << "Enter project description: ";
+        getline(cin, nuevo.description);
+        cin.ignore();
+        nuevo.id = LProjects.nextId;
+        LProjects.projects.push_back(nuevo);
+        LProjects.nextId++;
+    }
+    
+}
+
+int Compid(ToDo LProjects,int borrar){
+    int pos = -1;
+    for(unsigned i = 0; i < LProjects.projects.size();i++){
+        if(borrar = LProjects.projects[i].id){
+            pos = i;
+            i--;
+        }
+    }
+    return pos;
+}
+
+void deleteProject(ToDo LProjects){
+    int borrar;
+    
+    cout << "Enter project id: ";
+    cin >> borrar;
+    borrar = Compid(LProjects, borrar);
+    
+
 
 }
 
@@ -582,7 +633,7 @@ do{
     switch(option){
         case '1': ProjectMenu(LProjects);
             break;
-        case '2': addProject();
+        case '2': addProject(LProjects);
             break;
         case '3': deleteProject();
             break;
