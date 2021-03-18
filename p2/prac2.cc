@@ -3,14 +3,11 @@
 #include <vector>
 #include <cstdlib>
 #include <string.h>
+#include <fstream>
 using namespace std;
 
 const int KMAXNAME = 20;
 const int KMAXDESC = 40;
-
-
-
-
 
 struct Date{
    int day;
@@ -130,6 +127,17 @@ string CompLista(){
 
     return nombre;
 }
+
+int FindProject(ToDo LProject, string nombre){
+    int resultado = -1;
+    for(unsigned i=0; i<LProject.projects.size(); i++){
+        if(LProject.projects[i].name == nombre){
+            resultado = i;
+        }
+    }
+    return resultado;
+}
+
 /*Encuentra en una lista una Task*/
 int FindTask(string borrar,int pos,Project toDoList){
     int resultado = -1;
@@ -469,6 +477,10 @@ void mostrar(Task task){
    cout << task.time << ") " << task.deadline.year << "-" << task.deadline.month << "-" << task.deadline.day << " : " << task.name << endl;
 }
 //AQUI DECLARARÉ LAS COSAS DE LA PRACTICA 2
+
+/*************************************************
+********** FUNCIONES PRACTICA 2 *******************
+**************************************************/
 //Imprime el menu nuevo
 void NewMenu(){
 cout << "1- Project menu" << endl
@@ -539,14 +551,14 @@ void ProjectMenu(ToDo Proyectos){
     }
 }
 string compProjectEmpty(){
-    string proyecto
+    string proyecto;
     do{
         cout << "Enter Project name: ";
         getline(cin,proyecto);
         if(proyecto.empty()){
             error(ERR_EMPTY);
         }
-    }
+    }while(!proyecto.size());
 return proyecto;
 }
 
@@ -559,7 +571,7 @@ bool compProjectRepeat(ToDo Proyectos,string Posible){
         }
     }
 }
-void addProject(ToDo LProjects){
+void addProject(ToDo &LProjects){
     Project nuevo;
 
     nuevo.name = compProjectEmpty();
@@ -587,19 +599,116 @@ int Compid(ToDo LProjects,int borrar){
     return pos;
 }
 
-void deleteProject(ToDo LProjects){
+void deleteProject(ToDo &LProjects){
     int borrar;
     
     cout << "Enter project id: ";
     cin >> borrar;
     borrar = Compid(LProjects, borrar);
+    if(borrar != -1){
+            LProjects.projects.erase(LProjects.projects.begin()+borrar);
+    }else{
+            error(ERR_ID);
+    }
     
 
 
 }
 
-void importProject(){
 
+void importProject(ToDo &Lprojects){
+    ifstream fichero;
+    string nombre;
+    char type;
+    Project Pnuevo;//Guarda los proyectos del fichero
+    Task Tnuevo;//Guarda las tasks del fichero
+    List Lnuevo;//Guarda las listas del fichero
+    char hecho; //Almacena la letra para saber si la Task esta hecha o no
+    bool verification = false;// COmprueba si ha habido algun error en los datos
+    
+    cout << "Enter filename: ";
+    getline(cin, nombre);
+    cin.get();
+    fichero.open(nombre);
+    if(fichero.is_open()){
+
+        while (!fichero.eof()){
+            cin >> type;
+            switch (type){
+            //Empieza un nuevo proyecto
+            case '<':
+                fichero.get();
+                break;
+
+            //Nombre del proyecto
+            case '#':
+                getline(fichero, Pnuevo.name);
+                fichero.get();
+                break;
+            //Descripción del proyecto
+            case '*': 
+                getline(fichero, Pnuevo.description);
+                break;
+            //Nombre de una lista y sus tareas
+            case '@': 
+                //Nombre de la list
+                getline(fichero, Lnuevo.name);
+                do{
+
+                    fichero.get();
+                    //Nombre del task
+                    getline(fichero, Tnuevo.name, '|');
+                    //Fecha del task
+                    getline(fichero, Tnuevo.deadline.day);
+                    fichero.get();
+                    getline(fichero, Tnuevo.deadline.month);
+                    fichero.get();
+                    getline(fichero, Tnuevo.deadline.year);
+                    fichero.get();
+                    //Tiempo del Task
+                    getline(fichero, Tnuevo.time);
+                    fichero.get();
+                    //Si la fecha no es correcta
+                    if(!CompDeadLine(Tnuevo)){
+                        fichero >> hecho;
+                        error(ERR_DATE);
+                        verification = true;
+                    }
+                    //Si el tiempo no es correcto
+                    if(Tnuevo.time<1 && Tnuevo.time>180 && !verification){
+                        error(ERR_TIME);
+                        verification == true;
+                    }
+                    if(hecho == 'T'){
+                        Tnuevo.isDone == true;
+                    }
+                    if(hecho != 'F'){
+                        Tnuevo.isDone == false;
+                    }
+                    cin.get();
+                    //Incluye los datos
+                    //Si ha habido fallos
+                    if(verification){
+                        Lnuevo.tasks.push_back(Tnuevo);
+                    }
+        
+                }while(fichero << '@');
+                nuevo.lists.push_back(Lnuevo);
+                break;
+
+            //Termina el proyecto
+            case '>': 
+                if(FindProject == -1)
+                Lprojects.projects.push_back(Pnuevo);
+                break;
+            default: 
+                break;
+            }
+        }
+        fichero.close();
+    }else{
+        error(ERR_FILE);
+    }
 }
 
 void exportProject(){
@@ -635,7 +744,7 @@ do{
             break;
         case '2': addProject(LProjects);
             break;
-        case '3': deleteProject();
+        case '3': deleteProject(LProjects);
             break;
         case '4': importProject();
             break;
@@ -657,8 +766,5 @@ do{
 
 return 0;
 }
-
- 
- 
  
 //2 horas
