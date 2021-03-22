@@ -491,7 +491,7 @@ void mostrar(Task task){
 ********** FUNCIONES PRACTICA 2 *******************
 **************************************************/
 //Imprime el menu nuevo
-void recogerdato(ifstream fichero,Task Tnuevo,List Lnuevo){
+void recogerdato(ifstream &fichero,Task Tnuevo,List Lnuevo){
 char hecho;
 bool verification;
 do{
@@ -536,7 +536,7 @@ do{
 }while(hecho == '@');
 }
 
-void importdatos(ifstream &fichero,ToDo Lprojects){
+void importdatos(ifstream &fichero,ToDo &Lprojects){
     char tipo;
     Project Pnuevo;//Guarda los proyectos del fichero
     Task Tnuevo;//Guarda las tasks del fichero
@@ -551,7 +551,8 @@ void importdatos(ifstream &fichero,ToDo Lprojects){
     //Nombre del proyecto
     case '#':
         getline(fichero, Pnuevo.name);
-        //fichero.get();
+        Pnuevo.id=Lprojects.nextId;
+        Lprojects.nextId++;
         break;
     //Descripción del proyecto
     case '*': 
@@ -651,7 +652,7 @@ string compProjectEmpty(){
         if(proyecto.empty()){
             error(ERR_EMPTY);
         }
-    }while(!proyecto.empty());
+    }while(proyecto.empty());
 return proyecto;
 }
 
@@ -723,18 +724,16 @@ void importProject(ToDo &Lprojects){
     }
     fichero.close();
 }
-void exportaficheros(ofstream fichero, ToDo LProjects){
-    char opc;
-    
+void exportaficheros(ofstream &fichero, ToDo LProjects){    
     for(unsigned i=0;i<LProjects.projects.size();i++){
         for(unsigned j=0; j< LProjects.projects[i].lists.size();j++){
             for(unsigned k = 0; k < LProjects.projects[i].lists[j].tasks.size();k++){
-
+                
             }
         }
     }
 }
-void imprimidorTask(Task tarea, ofstream fichero){
+void imprimidorTask(Task tarea, ofstream &fichero){
     fichero << tarea.name << "|" << tarea.deadline.day << "/" << tarea.deadline.month << "/" << tarea.deadline.year << "|";
     if(tarea.isDone){
         fichero << "T";
@@ -743,16 +742,16 @@ void imprimidorTask(Task tarea, ofstream fichero){
     }
     fichero << "|" << tarea.time << endl;
 }
-void exportafichero(ofstream fichero, Project proyecto){
+void exportafichero(ofstream &fichero, ToDo proyecto,int pos){
     fichero << "<" << endl;
-    fichero << "#" << proyecto.name << endl;
-    if(!proyecto.description.empty()){
-        fichero << "*" << proyecto.description << endl;
+    fichero << "#" << proyecto.projects[pos].name << endl;
+    if(!proyecto.projects[pos].description.empty()){
+        fichero << "*" << proyecto.projects[pos].description << endl;
     }
-    for(unsigned i=0; i < proyecto.lists.size();i++){
-        fichero << "@" << proyecto.lists[i].name << endl;
-        for(unsigned j = 0; j < proyecto.lists[i].tasks.size();j++){
-            imprimidorTask(proyecto.lists[i].tasks[j], fichero);
+    for(unsigned i=0; i < proyecto.projects[pos].lists.size();i++){
+        fichero << "@" << proyecto.projects[pos].lists[i].name << endl;
+        for(unsigned j = 0; j < proyecto.projects[pos].lists[i].tasks.size();j++){
+            imprimidorTask(proyecto.projects[pos].lists[i].tasks[j], fichero);
         }
         fichero << ">" << endl;
     }
@@ -778,7 +777,7 @@ void exportProject(ToDo Lprojects){
             getline(cin, nombre);
             fichero.open(nombre.c_str());
             if(fichero.is_open()){
-                exportafichero(fichero, Lprojects.projects[pos]);
+                exportafichero(fichero, Lprojects, pos);
                 fichero.close();
             }else{
                 error(ERR_FILE);
@@ -789,7 +788,7 @@ void exportProject(ToDo Lprojects){
         break;
         case 'Y':
         case 'y':
-
+            break;
     }
 }
 
