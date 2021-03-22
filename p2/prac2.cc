@@ -546,12 +546,12 @@ void importdatos(ifstream &fichero,ToDo Lprojects){
     switch (tipo){
     //Empieza un nuevo proyecto
     case '<':
-        fichero.get();
+        //fichero.get();
         break;
     //Nombre del proyecto
     case '#':
         getline(fichero, Pnuevo.name);
-        fichero.get();
+        //fichero.get();
         break;
     //Descripción del proyecto
     case '*': 
@@ -651,7 +651,7 @@ string compProjectEmpty(){
         if(proyecto.empty()){
             error(ERR_EMPTY);
         }
-    }while(!proyecto.size());
+    }while(!proyecto.empty());
 return proyecto;
 }
 
@@ -759,6 +759,7 @@ void exportafichero(ofstream fichero, Project proyecto){
 }
 void exportProject(ToDo Lprojects){
     char resp;
+    int id;
     int pos;
     string nombre;
     ofstream fichero;
@@ -777,7 +778,7 @@ void exportProject(ToDo Lprojects){
             getline(cin, nombre);
             fichero.open(nombre.c_str());
             if(fichero.is_open()){
-                exportafichero(fichero, Lprojects[pos]);
+                exportafichero(fichero, Lprojects.projects[pos]);
                 fichero.close();
             }else{
                 error(ERR_FILE);
@@ -789,7 +790,7 @@ void exportProject(ToDo Lprojects){
         case 'Y':
         case 'y':
 
-}
+    }
 }
 
 void loadData(){
