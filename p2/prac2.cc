@@ -138,6 +138,15 @@ int FindProject(ToDo LProject, string nombre){
     return resultado;
 }
 
+int FindProjectid(ToDo LProject, int id){
+    int resultado = -1;
+    for(unsigned i= 0; i<LProject.projects.size();i++){
+        if(LProject.projects[i].id == id){
+            resultado = i;
+        }
+    }
+    return resultado;
+}
 /*Encuentra en una lista una Task*/
 int FindTask(string borrar,int pos,Project toDoList){
     int resultado = -1;
@@ -482,6 +491,90 @@ void mostrar(Task task){
 ********** FUNCIONES PRACTICA 2 *******************
 **************************************************/
 //Imprime el menu nuevo
+void recogerdato(ifstream fichero,Task Tnuevo,List Lnuevo){
+char hecho;
+bool verification;
+do{
+
+    fichero.get();
+    //Nombre del task
+    getline(fichero, Tnuevo.name, '|');
+    //Fecha del task
+    fichero >> Tnuevo.deadline.day;
+    fichero.get();
+    fichero >> Tnuevo.deadline.month;
+    fichero.get();
+    fichero >> Tnuevo.deadline.year;
+    fichero.get();
+    //Tiempo del Task
+    fichero >> Tnuevo.time;
+    fichero.get();
+    //Si la fecha no es correcta
+    if(!CompDeadLine(Tnuevo)){
+        fichero >> hecho;
+        error(ERR_DATE);
+        verification = true;
+    }
+    //Si el tiempo no es correcto
+    if(Tnuevo.time<1 && Tnuevo.time>180 && !verification){
+        error(ERR_TIME);
+        verification = true;
+    }
+    if(hecho == 'T'){
+        Tnuevo.isDone = true;
+    }
+    if(hecho != 'F'){
+        Tnuevo.isDone = false;
+    }
+    fichero.get();
+    //Incluye los datos
+    //Si ha habido fallos
+    if(verification){
+        Lnuevo.tasks.push_back(Tnuevo);
+    }
+    fichero >> hecho;
+}while(hecho == '@');
+}
+
+void importdatos(ifstream &fichero,ToDo Lprojects){
+    char tipo;
+    Project Pnuevo;//Guarda los proyectos del fichero
+    Task Tnuevo;//Guarda las tasks del fichero
+    List Lnuevo;//Guarda las listas del fichero
+
+    fichero >> tipo;
+    switch (tipo){
+    //Empieza un nuevo proyecto
+    case '<':
+        fichero.get();
+        break;
+    //Nombre del proyecto
+    case '#':
+        getline(fichero, Pnuevo.name);
+        fichero.get();
+        break;
+    //Descripción del proyecto
+    case '*': 
+        getline(fichero, Pnuevo.description);
+        break;
+    //Nombre de una lista y sus tareas
+    case '@': 
+        //Nombre de la list
+        getline(fichero, Lnuevo.name);
+        
+        Pnuevo.lists.push_back(Lnuevo);
+        break;
+    //Termina el proyecto
+    case '>': 
+        if(FindProject(Lprojects, Pnuevo.name) == -1)
+        Lprojects.projects.push_back(Pnuevo);
+        break;
+    default: 
+        break;
+    }
+}
+
+
 void NewMenu(){
 cout << "1- Project menu" << endl
     << "2- Add project" << endl
@@ -528,7 +621,7 @@ do{
 int CompMenu(ToDo Proyectos,int id){
     int resultado = -1;
 
-    for(int i=0; i < Proyectos.nextId; i++){
+    for(unsigned i=0; i < Proyectos.projects.size(); i++){
         if (Proyectos.projects[i].id == id){
             resultado = i;         
         }
@@ -570,6 +663,7 @@ bool compProjectRepeat(ToDo Proyectos,string Posible){
             resultado = true;
         }
     }
+    return resultado;
 }
 void addProject(ToDo &LProjects){
     Project nuevo;
@@ -580,20 +674,18 @@ void addProject(ToDo &LProjects){
     }else{
         cout << "Enter project description: ";
         getline(cin, nuevo.description);
-        cin.ignore();
         nuevo.id = LProjects.nextId;
         LProjects.projects.push_back(nuevo);
         LProjects.nextId++;
     }
     
 }
-
+//Busca un proyecto con la misma id que la introducida
 int Compid(ToDo LProjects,int borrar){
     int pos = -1;
     for(unsigned i = 0; i < LProjects.projects.size();i++){
-        if(borrar = LProjects.projects[i].id){
+        if(borrar == LProjects.projects[i].id){
             pos = i;
-            i--;
         }
     }
     return pos;
@@ -610,109 +702,94 @@ void deleteProject(ToDo &LProjects){
     }else{
             error(ERR_ID);
     }
-    
-
-
 }
 
 
 void importProject(ToDo &Lprojects){
     ifstream fichero;
     string nombre;
-    char type;
-    Project Pnuevo;//Guarda los proyectos del fichero
-    Task Tnuevo;//Guarda las tasks del fichero
-    List Lnuevo;//Guarda las listas del fichero
-    char hecho; //Almacena la letra para saber si la Task esta hecha o no
-    bool verification = false;// COmprueba si ha habido algun error en los datos
+    
     
     cout << "Enter filename: ";
     getline(cin, nombre);
-    cin.get();
-    fichero.open(nombre);
+    fichero.open(nombre.c_str());
     if(fichero.is_open()){
 
         while (!fichero.eof()){
-            cin >> type;
-            switch (type){
-            //Empieza un nuevo proyecto
-            case '<':
-                fichero.get();
-                break;
+            importdatos(fichero,Lprojects);
+        }
+    }else{
+    error(ERR_FILE);
+    }
+    fichero.close();
+}
+void exportaficheros(ofstream fichero, ToDo LProjects){
+    char opc;
+    
+    for(unsigned i=0;i<LProjects.projects.size();i++){
+        for(unsigned j=0; j< LProjects.projects[i].lists.size();j++){
+            for(unsigned k = 0; k < LProjects.projects[i].lists[j].tasks.size();k++){
 
-            //Nombre del proyecto
-            case '#':
-                getline(fichero, Pnuevo.name);
-                fichero.get();
-                break;
-            //Descripción del proyecto
-            case '*': 
-                getline(fichero, Pnuevo.description);
-                break;
-            //Nombre de una lista y sus tareas
-            case '@': 
-                //Nombre de la list
-                getline(fichero, Lnuevo.name);
-                do{
-
-                    fichero.get();
-                    //Nombre del task
-                    getline(fichero, Tnuevo.name, '|');
-                    //Fecha del task
-                    getline(fichero, Tnuevo.deadline.day);
-                    fichero.get();
-                    getline(fichero, Tnuevo.deadline.month);
-                    fichero.get();
-                    getline(fichero, Tnuevo.deadline.year);
-                    fichero.get();
-                    //Tiempo del Task
-                    getline(fichero, Tnuevo.time);
-                    fichero.get();
-                    //Si la fecha no es correcta
-                    if(!CompDeadLine(Tnuevo)){
-                        fichero >> hecho;
-                        error(ERR_DATE);
-                        verification = true;
-                    }
-                    //Si el tiempo no es correcto
-                    if(Tnuevo.time<1 && Tnuevo.time>180 && !verification){
-                        error(ERR_TIME);
-                        verification == true;
-                    }
-                    if(hecho == 'T'){
-                        Tnuevo.isDone == true;
-                    }
-                    if(hecho != 'F'){
-                        Tnuevo.isDone == false;
-                    }
-                    cin.get();
-                    //Incluye los datos
-                    //Si ha habido fallos
-                    if(verification){
-                        Lnuevo.tasks.push_back(Tnuevo);
-                    }
-        
-                }while(fichero << '@');
-                nuevo.lists.push_back(Lnuevo);
-                break;
-
-            //Termina el proyecto
-            case '>': 
-                if(FindProject == -1)
-                Lprojects.projects.push_back(Pnuevo);
-                break;
-            default: 
-                break;
             }
         }
-        fichero.close();
-    }else{
-        error(ERR_FILE);
     }
 }
+void imprimidorTask(Task tarea, ofstream fichero){
+    fichero << tarea.name << "|" << tarea.deadline.day << "/" << tarea.deadline.month << "/" << tarea.deadline.year << "|";
+    if(tarea.isDone){
+        fichero << "T";
+    }else{
+        fichero << "F";
+    }
+    fichero << "|" << tarea.time << endl;
+}
+void exportafichero(ofstream fichero, Project proyecto){
+    fichero << "<" << endl;
+    fichero << "#" << proyecto.name << endl;
+    if(!proyecto.description.empty()){
+        fichero << "*" << proyecto.description << endl;
+    }
+    for(unsigned i=0; i < proyecto.lists.size();i++){
+        fichero << "@" << proyecto.lists[i].name << endl;
+        for(unsigned j = 0; j < proyecto.lists[i].tasks.size();j++){
+            imprimidorTask(proyecto.lists[i].tasks[j], fichero);
+        }
+        fichero << ">" << endl;
+    }
+}
+void exportProject(ToDo Lprojects){
+    char resp;
+    int pos;
+    string nombre;
+    ofstream fichero;
+    do{
+    cout << "Save all projects [Y/N]?: ";
+    cin >> resp;
+    }while(resp != 'Y' && resp != 'y' && resp != 'N' && resp != 'n');
+    switch(resp){
+        case 'N':
+        case 'n':
+        cout << "Enter project id: ";
+        cin >> id;
+        pos = FindProjectid(Lprojects, id );
+        if(pos != -1){
+            cout << "Enter filename: ";
+            getline(cin, nombre);
+            fichero.open(nombre.c_str());
+            if(fichero.is_open()){
+                exportafichero(fichero, Lprojects[pos]);
+                fichero.close();
+            }else{
+                error(ERR_FILE);
+            }
+        }else{
+            error(ERR_ID);
+        }
+        break;
+        case 'Y':
+        case 'y':
 
-void exportProject(){
-
+}
 }
 
 void loadData(){
@@ -746,9 +823,9 @@ do{
             break;
         case '3': deleteProject(LProjects);
             break;
-        case '4': importProject();
+        case '4': importProject(LProjects);
             break;
-        case '5': exportProject();
+        case '5': exportProject(LProjects);
             break;
         case '6': loadData();
             break;
@@ -767,4 +844,4 @@ do{
 return 0;
 }
  
-//2 horas
+//4 horas
