@@ -541,22 +541,22 @@ void importdatos(ifstream &fichero,ToDo &Lprojects){
     Project Pnuevo;//Guarda los proyectos del fichero
     Task Tnuevo;//Guarda las tasks del fichero
     List Lnuevo;//Guarda las listas del fichero
+    char papelera;
 
     fichero >> tipo;
     switch (tipo){
     //Empieza un nuevo proyecto
     case '<':
-        //fichero.get();
         break;
     //Nombre del proyecto
     case '#':
         getline(fichero, Pnuevo.name);
-        Pnuevo.id=Lprojects.nextId;
-        Lprojects.nextId++;
+        cout << "Nombre de Proyecto: " << Pnuevo.name << endl;
         break;
     //Descripción del proyecto
     case '*': 
         getline(fichero, Pnuevo.description);
+        cout << "Descripción: " << Pnuevo.description << endl;
         break;
     //Nombre de una lista y sus tareas
     case '@': 
@@ -735,6 +735,7 @@ void exportaficheros(ofstream &fichero, ToDo LProjects){
 }
 void imprimidorTask(Task tarea, ofstream &fichero){
     fichero << tarea.name << "|" << tarea.deadline.day << "/" << tarea.deadline.month << "/" << tarea.deadline.year << "|";
+    cout << "He llegao" << endl;
     if(tarea.isDone){
         fichero << "T";
     }else{
@@ -747,10 +748,13 @@ void exportafichero(ofstream &fichero, ToDo proyecto,int pos){
     fichero << "#" << proyecto.projects[pos].name << endl;
     if(!proyecto.projects[pos].description.empty()){
         fichero << "*" << proyecto.projects[pos].description << endl;
+        cout << "Jaja me follo a la madre de andrés" << endl;
     }
+    cout << "Modo: " <<  proyecto.projects[pos].lists.size() << endl;
     for(unsigned i=0; i < proyecto.projects[pos].lists.size();i++){
         fichero << "@" << proyecto.projects[pos].lists[i].name << endl;
         for(unsigned j = 0; j < proyecto.projects[pos].lists[i].tasks.size();j++){
+            cout << "He llegao" << endl;
             imprimidorTask(proyecto.projects[pos].lists[i].tasks[j], fichero);
         }
         fichero << ">" << endl;
@@ -771,12 +775,14 @@ void exportProject(ToDo Lprojects){
         case 'n':
         cout << "Enter project id: ";
         cin >> id;
+        cin.get();
         pos = FindProjectid(Lprojects, id );
         if(pos != -1){
             cout << "Enter filename: ";
             getline(cin, nombre);
             fichero.open(nombre.c_str());
             if(fichero.is_open()){
+                cout << "Fichero abierto";
                 exportafichero(fichero, Lprojects, pos);
                 fichero.close();
             }else{
@@ -788,6 +794,7 @@ void exportProject(ToDo Lprojects){
         break;
         case 'Y':
         case 'y':
+            
             break;
     }
 }
