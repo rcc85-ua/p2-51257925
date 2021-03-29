@@ -568,6 +568,8 @@ void importdatos(ifstream &fichero,ToDo &Lprojects){
     //Termina el proyecto
     case '>': 
         if(FindProject(Lprojects, Pnuevo.name) == -1)
+        Pnuevo.id=Lprojects.nextId;
+        Lprojects.nextId++;
         Lprojects.projects.push_back(Pnuevo);
         break;
     default: 
@@ -583,7 +585,7 @@ cout << "1- Project menu" << endl
     << "4- Import projects" << endl
     << "5- Export projects" << endl
     << "6- Load data" << endl
-    << "7-Save data" << endl
+    << "7- Save data" << endl
     <<"8- Summary" << endl
     << "q- Quit" << endl
     << "Option: ";
@@ -647,7 +649,7 @@ void ProjectMenu(ToDo Proyectos){
 string compProjectEmpty(){
     string proyecto;
     do{
-        cout << "Enter Project name: ";
+        cout << "Enter project name:  ";
         getline(cin,proyecto);
         if(proyecto.empty()){
             error(ERR_EMPTY);
@@ -748,7 +750,6 @@ void exportafichero(ofstream &fichero, ToDo proyecto,int pos){
     fichero << "#" << proyecto.projects[pos].name << endl;
     if(!proyecto.projects[pos].description.empty()){
         fichero << "*" << proyecto.projects[pos].description << endl;
-        cout << "Jaja me follo a la madre de andrés" << endl;
     }
     cout << "Modo: " <<  proyecto.projects[pos].lists.size() << endl;
     for(unsigned i=0; i < proyecto.projects[pos].lists.size();i++){
@@ -794,7 +795,7 @@ void exportProject(ToDo Lprojects){
         break;
         case 'Y':
         case 'y':
-            
+            exportaficheros(fichero, Lprojects);
             break;
     }
 }
