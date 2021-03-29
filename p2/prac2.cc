@@ -752,9 +752,9 @@ void exportafichero(ofstream &fichero, ToDo proyecto,int pos){
         fichero << "*" << proyecto.projects[pos].description << endl;
     }
     cout << "Modo: " <<  proyecto.projects[pos].lists.size() << endl;
-    for(unsigned i=0; i < proyecto.projects[pos].lists.size();i++){
+    for(unsigned i=0; i < proyecto.projects[pos].lists.size()+1;i++){
         fichero << "@" << proyecto.projects[pos].lists[i].name << endl;
-        for(unsigned j = 0; j < proyecto.projects[pos].lists[i].tasks.size();j++){
+        for(unsigned j = 0; j < proyecto.projects[pos].lists[i].tasks.size()+1;j++){
             cout << "He llegao" << endl;
             imprimidorTask(proyecto.projects[pos].lists[i].tasks[j], fichero);
         }

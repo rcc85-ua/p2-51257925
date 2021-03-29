@@ -1,0 +1,27 @@
+
+*** These modified files were found in JOE when it aborted on Mon Mar 29 19:08:11 2021
+*** JOE was aborted by UNIX signal 1
+
+*** File '/home/rcc85/p2-51257925/.git/COMMIT_EDITMSG'
+s the commit.
+#
+# Committer: Rayane Chelihi Chelouche <rcc85@clL04D-11>
+#
+# En la rama master
+# Su rama está actualizada con «origin/master».
+#
+# Cambios para hacer commit:
+#	nuevo archivo: ejemplo
+#	nuevo archivo: example
+#	modificado:    prac2.cc
+#
+
+*** File '(Unnamed)'
+homus_LeNet5.py
+/home/rcc85/p2-51257925/.git/COMMIT_EDITMSG
+
+*** File '* Startup Log *'
+Processing '/etc/joe/editorrc'...
+Processing '/etc/joe/ftyperc'...
+Finished processing /etc/joe/ftyperc
+Finished processing /etc/joe/editorrc
