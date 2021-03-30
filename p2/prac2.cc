@@ -163,7 +163,7 @@ int FindTask(string borrar,int pos,Project toDoList){
 }
 /*Encuentra una Lista en el proyecto*/
 int FindList(string name, Project toDoList){
-unsigned num=-1;
+int num=-1;
 //Comprueba que el nombre introducido no esta vacio
 for(unsigned i=0;i < toDoList.lists.size();i++){
   if(toDoList.lists[i].name == name){
@@ -711,14 +711,15 @@ void deleteProject(ToDo &LProjects){
 void importProject(ToDo &Lprojects){
     ifstream fichero;
     string nombre;
-    
+    bool checker = false;
     
     cout << "Enter filename: ";
     getline(cin, nombre);
     fichero.open(nombre.c_str());
     if(fichero.is_open()){
 
-        while (!fichero.eof()){
+        while (!checker){
+            checker = fichero.eof();
             importdatos(fichero,Lprojects);
         }
     }else{
@@ -728,16 +729,30 @@ void importProject(ToDo &Lprojects){
 }
 void exportaficheros(ofstream &fichero, ToDo LProjects){    
     for(unsigned i=0;i<LProjects.projects.size();i++){
+        fichero << "<" << endl;
+        fichero << "#" << LProjects.projects[i].name << endl;
+        if(!LProjects.projects[i].description.empty()){
+            fichero << "*" << LProjects.projects[i].description << endl;
+        }
         for(unsigned j=0; j< LProjects.projects[i].lists.size();j++){
+            fichero << "@" << LProjects.projects[i].lists[j].name << endl;
             for(unsigned k = 0; k < LProjects.projects[i].lists[j].tasks.size();k++){
-                
+                fichero << LProjects.projects[i].lists[j].tasks[k].name << "|"
+                << LProjects.projects[i].lists[j].tasks[k].deadline.day << "/"
+                << LProjects.projects[i].lists[j].tasks[k].deadline.month << "/"
+                << LProjects.projects[i].lists[j].tasks[k].deadline.year << "|";
+                if(LProjects.projects[i].lists[j].tasks[k].isDone){
+                    fichero << "T";
+                }else{
+                    fichero << "F";
+                }
+                fichero << "|" << LProjects.projects[i].lists[j].tasks[k].time << endl;
             }
         }
     }
 }
 void imprimidorTask(Task tarea, ofstream &fichero){
     fichero << tarea.name << "|" << tarea.deadline.day << "/" << tarea.deadline.month << "/" << tarea.deadline.year << "|";
-    cout << "He llegao" << endl;
     if(tarea.isDone){
         fichero << "T";
     }else{
@@ -751,8 +766,7 @@ void exportafichero(ofstream &fichero, ToDo proyecto,int pos){
     if(!proyecto.projects[pos].description.empty()){
         fichero << "*" << proyecto.projects[pos].description << endl;
     }
-    cout << "Modo: " <<  proyecto.projects[pos].lists.size() << endl;
-    for(unsigned i=0; i < proyecto.projects[pos].lists.size()+1;i++){
+    for(unsigned i=0; i < proyecto.projects[pos].lists.size();i++){
         fichero << "@" << proyecto.projects[pos].lists[i].name << endl;
         for(unsigned j = 0; j < proyecto.projects[pos].lists[i].tasks.size()+1;j++){
             cout << "He llegao" << endl;
