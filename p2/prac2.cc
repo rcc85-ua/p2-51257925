@@ -748,13 +748,10 @@ void exportafichero(ofstream &fichero, ToDo proyecto,int pos){
     fichero << "#" << proyecto.projects[pos].name << endl;
     if(!proyecto.projects[pos].description.empty()){
         fichero << "*" << proyecto.projects[pos].description << endl;
-        cout << "Jaja me follo a la madre de andrés" << endl;
     }
-    cout << "Modo: " <<  proyecto.projects[pos].lists.size() << endl;
     for(unsigned i=0; i < proyecto.projects[pos].lists.size();i++){
         fichero << "@" << proyecto.projects[pos].lists[i].name << endl;
         for(unsigned j = 0; j < proyecto.projects[pos].lists[i].tasks.size();j++){
-            cout << "He llegao" << endl;
             imprimidorTask(proyecto.projects[pos].lists[i].tasks[j], fichero);
         }
         fichero << ">" << endl;
