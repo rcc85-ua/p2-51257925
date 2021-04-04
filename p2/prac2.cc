@@ -163,7 +163,7 @@ int FindTask(string borrar,int pos,Project toDoList){
 }
 /*Encuentra una Lista en el proyecto*/
 int FindList(string name, Project toDoList){
-unsigned num=-1;
+int num=-1;
 //Comprueba que el nombre introducido no esta vacio
 for(unsigned i=0;i < toDoList.lists.size();i++){
   if(toDoList.lists[i].name == name){
@@ -568,6 +568,8 @@ void importdatos(ifstream &fichero,ToDo &Lprojects){
     //Termina el proyecto
     case '>': 
         if(FindProject(Lprojects, Pnuevo.name) == -1)
+        Pnuevo.id=Lprojects.nextId;
+        Lprojects.nextId++;
         Lprojects.projects.push_back(Pnuevo);
         break;
     default: 
@@ -583,7 +585,7 @@ cout << "1- Project menu" << endl
     << "4- Import projects" << endl
     << "5- Export projects" << endl
     << "6- Load data" << endl
-    << "7-Save data" << endl
+    << "7- Save data" << endl
     <<"8- Summary" << endl
     << "q- Quit" << endl
     << "Option: ";
@@ -647,7 +649,7 @@ void ProjectMenu(ToDo Proyectos){
 string compProjectEmpty(){
     string proyecto;
     do{
-        cout << "Enter Project name: ";
+        cout << "Enter project name:  ";
         getline(cin,proyecto);
         if(proyecto.empty()){
             error(ERR_EMPTY);
@@ -709,14 +711,15 @@ void deleteProject(ToDo &LProjects){
 void importProject(ToDo &Lprojects){
     ifstream fichero;
     string nombre;
-    
+    bool checker = false;
     
     cout << "Enter filename: ";
     getline(cin, nombre);
     fichero.open(nombre.c_str());
     if(fichero.is_open()){
 
-        while (!fichero.eof()){
+        while (!checker){
+            checker = fichero.eof();
             importdatos(fichero,Lprojects);
         }
     }else{
@@ -726,16 +729,30 @@ void importProject(ToDo &Lprojects){
 }
 void exportaficheros(ofstream &fichero, ToDo LProjects){    
     for(unsigned i=0;i<LProjects.projects.size();i++){
+        fichero << "<" << endl;
+        fichero << "#" << LProjects.projects[i].name << endl;
+        if(!LProjects.projects[i].description.empty()){
+            fichero << "*" << LProjects.projects[i].description << endl;
+        }
         for(unsigned j=0; j< LProjects.projects[i].lists.size();j++){
+            fichero << "@" << LProjects.projects[i].lists[j].name << endl;
             for(unsigned k = 0; k < LProjects.projects[i].lists[j].tasks.size();k++){
-                
+                fichero << LProjects.projects[i].lists[j].tasks[k].name << "|"
+                << LProjects.projects[i].lists[j].tasks[k].deadline.day << "/"
+                << LProjects.projects[i].lists[j].tasks[k].deadline.month << "/"
+                << LProjects.projects[i].lists[j].tasks[k].deadline.year << "|";
+                if(LProjects.projects[i].lists[j].tasks[k].isDone){
+                    fichero << "T";
+                }else{
+                    fichero << "F";
+                }
+                fichero << "|" << LProjects.projects[i].lists[j].tasks[k].time << endl;
             }
         }
     }
 }
 void imprimidorTask(Task tarea, ofstream &fichero){
     fichero << tarea.name << "|" << tarea.deadline.day << "/" << tarea.deadline.month << "/" << tarea.deadline.year << "|";
-    cout << "He llegao" << endl;
     if(tarea.isDone){
         fichero << "T";
     }else{
@@ -779,7 +796,6 @@ void exportProject(ToDo Lprojects){
             getline(cin, nombre);
             fichero.open(nombre.c_str());
             if(fichero.is_open()){
-                cout << "Fichero abierto";
                 exportafichero(fichero, Lprojects, pos);
                 fichero.close();
             }else{
@@ -791,7 +807,15 @@ void exportProject(ToDo Lprojects){
         break;
         case 'Y':
         case 'y':
-            
+            cout << "Enter filename: ";
+            cin.get();
+            getline(cin, nombre);
+            fichero.open(nombre.c_str());
+            if(fichero.is_open()){
+                for(unsigned i=0; i< Lprojects.projects.size();i++){
+                    exportafichero(fichero, Lprojects, i);
+                }
+            }
             break;
     }
 }
