@@ -1,5 +1,7 @@
 //DNI: 51257925X CHELIHI CHELOUCHE, RAYANE
 #include <iostream>
+#include <thread>         // std::this_thread::sleep_for
+#include <chrono>         // std::chrono::seconds
 #include <vector>
 #include <cstdlib>
 #include <string.h>
@@ -8,6 +10,7 @@ using namespace std;
 
 const int KMAXNAME = 20;
 const int KMAXDESC = 40;
+
 
 struct Date{
    int day;
@@ -494,27 +497,32 @@ void mostrar(Task task){
 void recogerdato(ifstream &fichero,Task Tnuevo,List Lnuevo){
 char hecho;
 bool verification;
-do{
 
-    fichero.get();
     //Nombre del task
     getline(fichero, Tnuevo.name, '|');
+    cout << "Nombre: " << Tnuevo.name << endl;
     //Fecha del task
     fichero >> Tnuevo.deadline.day;
+    cout << "Dia: " << Tnuevo.deadline.day << endl;
     fichero.get();
     fichero >> Tnuevo.deadline.month;
+    cout << "Mes: " << Tnuevo.deadline.month << endl;
     fichero.get();
     fichero >> Tnuevo.deadline.year;
+    cout << "Año: " << Tnuevo.deadline.year << endl;
     fichero.get();
-    //Tiempo del Task
-    fichero >> Tnuevo.time;
-    fichero.get();
-    //Si la fecha no es correcta
     if(!CompDeadLine(Tnuevo)){
         fichero >> hecho;
+        cout << "Toggle?" << hecho << endl;
         error(ERR_DATE);
         verification = true;
     }
+    //Tiempo del Task
+    fichero >> Tnuevo.time;
+    cout << "Tiempos" << Tnuevo.time << endl;
+    fichero.get();
+    //Si la fecha no es correcta
+  
     //Si el tiempo no es correcto
     if(Tnuevo.time<1 && Tnuevo.time>180 && !verification){
         error(ERR_TIME);
@@ -532,12 +540,13 @@ do{
     if(verification){
         Lnuevo.tasks.push_back(Tnuevo);
     }
-    fichero >> hecho;
-}while(hecho == '@');
 }
 
 void importdatos(ifstream &fichero,ToDo &Lprojects){
     char tipo;
+    char primero;
+    int pos;
+    string Tnombre;
     Project Pnuevo;//Guarda los proyectos del fichero
     Task Tnuevo;//Guarda las tasks del fichero
     List Lnuevo;//Guarda las listas del fichero
@@ -550,30 +559,39 @@ void importdatos(ifstream &fichero,ToDo &Lprojects){
         break;
     //Nombre del proyecto
     case '#':
+        //Guarda nombre del proyecto
         getline(fichero, Pnuevo.name);
         cout << "Nombre de Proyecto: " << Pnuevo.name << endl;
         break;
     //Descripción del proyecto
     case '*': 
+        //Guarda descripcion del proyecto
         getline(fichero, Pnuevo.description);
         cout << "Descripción: " << Pnuevo.description << endl;
+        fichero.get();
         break;
     //Nombre de una lista y sus tareas
     case '@': 
-        //Nombre de la list
+        //Guarda el nombre de la list
         getline(fichero, Lnuevo.name);
-        
         Pnuevo.lists.push_back(Lnuevo);
+        fichero.get();
         break;
     //Termina el proyecto
     case '>': 
-        if(FindProject(Lprojects, Pnuevo.name) == -1)
+        cout << "Fin de todo" << endl;
+        if(FindProject(Lprojects, Pnuevo.name) == -1){
         Pnuevo.id=Lprojects.nextId;
         Lprojects.nextId++;
         Lprojects.projects.push_back(Pnuevo);
+        }
+        fichero.get();
+        break;
+    case '\n':
         break;
     default: 
-        break;
+        if(tipo > 'A' && tipo < 'z')
+        recogerdato(fichero, Tnuevo, Lnuevo);
     }
 }
 
@@ -592,7 +610,7 @@ cout << "1- Project menu" << endl
 }
 
 //Imprime El menu antiguo
-void OldMenu(Project &Proyecto){
+Project OldMenu(Project &Proyecto){
 char option;
 
 do{
@@ -618,6 +636,7 @@ do{
         break;
     }
 }while(option!='b');
+return Proyecto;
 }
 
 //Comprueba que el proyecto existe
@@ -643,7 +662,7 @@ void ProjectMenu(ToDo Proyectos){
     if(Pos == -1){
         error(ERR_ID);
     }else{
-        OldMenu(Proyectos.projects[Pos]);
+        Proyectos.projects[Pos]=OldMenu(Proyectos.projects[Pos]);
     }
 }
 string compProjectEmpty(){
@@ -828,8 +847,27 @@ void saveData(){
 
 }
 
-void Summary(){
 
+void sumador(Project proyecto,int total,int hechos){
+    total = 0;
+    hechos = 0;
+    for(unsigned i=0; i<proyecto.lists.size();i++){
+        for(unsigned j=0; j<proyecto.lists[i].tasks.size();j++){
+            if(proyecto.lists[i].tasks[j].isDone){
+                hechos++;
+            }
+            total++;
+        }
+    }
+}
+
+void Summary(ToDo &LProjects){
+    int total = 0, hechos = 0;
+
+    for(unsigned i=0; i < LProjects.projects.size();i++){
+        sumador(LProjects.projects[i], total, hechos);
+        cout << "(" << LProjects.projects[i].id << ") " << LProjects.projects[i].name << "[" << hechos << "/" << total << "]" << endl;
+    }
 }
 
 int main(){
@@ -859,7 +897,7 @@ do{
             break;
         case '7': saveData();
             break;
-        case '8': Summary();
+        case '8': Summary(LProjects);
             break;
         case 'q':
             break;
