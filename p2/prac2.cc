@@ -193,6 +193,7 @@ bool CompDeadLine(Task nueva){
             case 12:
                 if(nueva.deadline.day<0 || nueva.deadline.day>31){
                     error(ERR_DATE);
+                    cout << "En el 1" << endl;
                     centinela = true;
                 }
                 break;
@@ -201,11 +202,13 @@ bool CompDeadLine(Task nueva){
                 if((nueva.deadline.year%100 == 0 && nueva.deadline.year%400 == 0) || (nueva.deadline.year%100 != 0 && nueva.deadline.year%4 == 0)){
                     if (nueva.deadline.day<0 || nueva.deadline.day > 29){
                         error(ERR_DATE);
+                        cout << "En el dos" << endl;
                         centinela = true;
                     }
                 }else{
                     if (nueva.deadline.day<0 || nueva.deadline.day > 28){
                         error(ERR_DATE);
+                        cout << "En el tres" << endl;
                         centinela = true;
                     }
                 }
@@ -217,12 +220,14 @@ bool CompDeadLine(Task nueva){
             case 11:
                 if (nueva.deadline.day<0 || nueva.deadline.day > 30){
                     error(ERR_DATE);
+                    cout << "En el 4" << endl;
                     centinela = true;
                 }
                 break;
 
             default:
                 error(ERR_DATE);
+                cout << "En el 5" << endl;
                 centinela = true;
                 break;
        }
@@ -498,9 +503,6 @@ void recogerdato(ifstream &fichero,Task Tnuevo,List Lnuevo){
 char hecho;
 bool verification;
 
-    //Nombre del task
-    getline(fichero, Tnuevo.name, '|');
-    cout << "Nombre: " << Tnuevo.name << endl;
     //Fecha del task
     fichero >> Tnuevo.deadline.day;
     cout << "Dia: " << Tnuevo.deadline.day << endl;
@@ -511,18 +513,20 @@ bool verification;
     fichero >> Tnuevo.deadline.year;
     cout << "Año: " << Tnuevo.deadline.year << endl;
     fichero.get();
-    if(!CompDeadLine(Tnuevo)){
+    
         fichero >> hecho;
         cout << "Toggle?" << hecho << endl;
-        error(ERR_DATE);
-        verification = true;
-    }
+
     //Tiempo del Task
     fichero >> Tnuevo.time;
     cout << "Tiempos" << Tnuevo.time << endl;
     fichero.get();
     //Si la fecha no es correcta
-  
+    if(!CompDeadLine(Tnuevo)){
+        verification =true;
+        error(ERR_DATE);
+
+    }
     //Si el tiempo no es correcto
     if(Tnuevo.time<1 && Tnuevo.time>180 && !verification){
         error(ERR_TIME);
@@ -546,6 +550,7 @@ void importdatos(ifstream &fichero,ToDo &Lprojects){
     char tipo;
     char primero;
     int pos;
+    char a;
     string Tnombre;
     Project Pnuevo;//Guarda los proyectos del fichero
     Task Tnuevo;//Guarda las tasks del fichero
@@ -574,7 +579,17 @@ void importdatos(ifstream &fichero,ToDo &Lprojects){
     case '@': 
         //Guarda el nombre de la list
         getline(fichero, Lnuevo.name);
-        Pnuevo.lists.push_back(Lnuevo);
+        do{
+            fichero >> a;
+            if(a != '@' && a != '|'){
+                Tnuevo.name.push_back(a);
+            }
+            if(a == '|'){
+                cout << "Nombre Task: " << Tnuevo.name << endl;
+                recogerdato(fichero, Tnuevo, Lnuevo);
+            }
+        }while(a != '@');
+        Pnuevo.lists.push_back(Lnuevo); 
         fichero.get();
         break;
     //Termina el proyecto
@@ -590,8 +605,9 @@ void importdatos(ifstream &fichero,ToDo &Lprojects){
     case '\n':
         break;
     default: 
-        if(tipo > 'A' && tipo < 'z')
-        recogerdato(fichero, Tnuevo, Lnuevo);
+       //if(tipo > 'A' && tipo < 'z')
+        //recogerdato(fichero, Tnuevo, Lnuevo);
+        break;
     }
 }
 
