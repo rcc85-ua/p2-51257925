@@ -499,33 +499,45 @@ void mostrar(Task task){
 ********** FUNCIONES PRACTICA 2 *******************
 **************************************************/
 //Imprime el menu nuevo
-void recogerdato(ifstream &fichero,Task Tnuevo,List Lnuevo){
+void recogerdato(ifstream &fichero,List  &Lnuevo,string linea){
 char hecho;
+Task Tnuevo;
 bool verification;
-
+    //Guarda el nombre
+    for(unsigned i=0;i<linea.size() && linea[0] != '|'; i++){//----Muchas cosas|27/04/2020---4/2/2010
+        Tnuevo.name.push_back(linea[0]);
+        linea.erase(linea.begin());// |27/04/2020
+    }
+    cout << "Nombre de Task" << Tnuevo.name << endl;
+    linea.erase(linea.begin());// 27/04/2020
     //Fecha del task
-    fichero >> Tnuevo.deadline.day;
-    cout << "Dia: " << Tnuevo.deadline.day << endl;
-    fichero.get();
-    fichero >> Tnuevo.deadline.month;
+    Tnuevo.deadline.day=strtol(linea.data(), nullptr, 10);
+    if(linea[1] != '/'){
+    linea.erase(linea.begin());
+    }
+    linea.erase(linea.begin()); // 04/2020
+    linea.erase(linea.begin()); // 4/2020
+    cout << "Dia:" << Tnuevo.deadline.day << endl;
+    Tnuevo.deadline.month=strtol(linea.data(), nullptr, 10);
+    if(linea[1] != '/')
+    linea.erase(linea.begin());
+    linea.erase(linea.begin());linea.erase(linea.begin());
     cout << "Mes: " << Tnuevo.deadline.month << endl;
-    fichero.get();
-    fichero >> Tnuevo.deadline.year;
+    cout << "Lista" << linea << endl;
+    Tnuevo.deadline.year=strtol(linea.data(), nullptr, 10);
     cout << "Año: " << Tnuevo.deadline.year << endl;
-    fichero.get();
-    
-        fichero >> hecho;
-        cout << "Toggle?" << hecho << endl;
-
+    linea.erase(linea.begin());linea.erase(linea.begin());linea.erase(linea.begin());linea.erase(linea.begin());linea.erase(linea.begin());
+        //Guarda si esta hecho o no
+        hecho = linea[0];
+        linea.erase(linea.begin());
+        linea.erase(linea.begin());
     //Tiempo del Task
-    fichero >> Tnuevo.time;
-    cout << "Tiempos" << Tnuevo.time << endl;
-    fichero.get();
-    //Si la fecha no es correcta
-    if(!CompDeadLine(Tnuevo)){
-        verification =true;
-        error(ERR_DATE);
+    //Guarda el tiempo
+    Tnuevo.time = strtol(linea.data(), nullptr, 10);
 
+    //Si la fecha no es correcta
+    if(CompDeadLine(Tnuevo)){
+        verification =true;
     }
     //Si el tiempo no es correcto
     if(Tnuevo.time<1 && Tnuevo.time>180 && !verification){
@@ -538,77 +550,72 @@ bool verification;
     if(hecho != 'F'){
         Tnuevo.isDone = false;
     }
-    fichero.get();
     //Incluye los datos
     //Si ha habido fallos
-    if(verification){
+    if(!verification){
         Lnuevo.tasks.push_back(Tnuevo);
+        cout << "Correcto" << endl;
     }
 }
 
 void importdatos(ifstream &fichero,ToDo &Lprojects){
-    char tipo;
-    char primero;
-    int pos;
-    char a;
-    string Tnombre;
+    string leido;
     Project Pnuevo;//Guarda los proyectos del fichero
     Task Tnuevo;//Guarda las tasks del fichero
     List Lnuevo;//Guarda las listas del fichero
-    char papelera;
 
-    fichero >> tipo;
-    switch (tipo){
+    getline(fichero, leido);
+    do{
+    switch (leido[0]){
     //Empieza un nuevo proyecto
     case '<':
+        getline(fichero, leido);
         break;
     //Nombre del proyecto
     case '#':
         //Guarda nombre del proyecto
-        getline(fichero, Pnuevo.name);
-        cout << "Nombre de Proyecto: " << Pnuevo.name << endl;
+        Pnuevo.name=leido.substr(1,string::npos);
+        getline(fichero, leido);
         break;
     //Descripción del proyecto
     case '*': 
+        Pnuevo.description=leido.substr(1,string::npos);
         //Guarda descripcion del proyecto
-        getline(fichero, Pnuevo.description);
-        cout << "Descripción: " << Pnuevo.description << endl;
-        fichero.get();
+        getline(fichero, leido);
         break;
     //Nombre de una lista y sus tareas
     case '@': 
+        Lnuevo.name=leido.substr(1,string::npos);
         //Guarda el nombre de la list
-        getline(fichero, Lnuevo.name);
-        do{
-            fichero >> a;
-            if(a != '@' && a != '|'){
-                Tnuevo.name.push_back(a);
-            }
-            if(a == '|'){
-                cout << "Nombre Task: " << Tnuevo.name << endl;
-                recogerdato(fichero, Tnuevo, Lnuevo);
-            }
-        }while(a != '@');
+        getline(fichero, leido);
+        while(leido[0] != '@' && leido[0] != '>' && leido.size() != 0){
+        if(leido[0] != '@' && leido[0] != '>' && leido.size() != 0){
+            recogerdato(fichero, Lnuevo, leido);
+            getline(fichero, leido);
+        }
+        }
         Pnuevo.lists.push_back(Lnuevo); 
-        fichero.get();
+        cout << Lnuevo.tasks.size() << endl;
+        cout << "Sucede" << endl;
         break;
     //Termina el proyecto
     case '>': 
-        cout << "Fin de todo" << endl;
+        getline(fichero, leido);
         if(FindProject(Lprojects, Pnuevo.name) == -1){
         Pnuevo.id=Lprojects.nextId;
         Lprojects.nextId++;
         Lprojects.projects.push_back(Pnuevo);
+        cout << "Vosse so exitosso" << endl;
+        //cout << "numero de proyectos" << Lprojects.projects.size() << endl;
         }
-        fichero.get();
-        break;
-    case '\n':
+        getline(fichero, leido);
         break;
     default: 
-       //if(tipo > 'A' && tipo < 'z')
-        //recogerdato(fichero, Tnuevo, Lnuevo);
         break;
     }
+    }while (!fichero.eof());
+
+    
 }
 
 
@@ -869,6 +876,7 @@ void sumador(Project proyecto,int total,int hechos){
     hechos = 0;
     for(unsigned i=0; i<proyecto.lists.size();i++){
         for(unsigned j=0; j<proyecto.lists[i].tasks.size();j++){
+            cout << "Proyectos: " << proyecto.lists.size() << "-" <<proyecto.lists[i].tasks.size() << endl;
             if(proyecto.lists[i].tasks[j].isDone){
                 hechos++;
             }
