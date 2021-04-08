@@ -508,7 +508,6 @@ bool verification;
         Tnuevo.name.push_back(linea[0]);
         linea.erase(linea.begin());// |27/04/2020
     }
-    cout << "Nombre de Task" << Tnuevo.name << endl;
     linea.erase(linea.begin());// 27/04/2020
     //Fecha del task
     Tnuevo.deadline.day=strtol(linea.data(), nullptr, 10);
@@ -517,15 +516,11 @@ bool verification;
     }
     linea.erase(linea.begin()); // 04/2020
     linea.erase(linea.begin()); // 4/2020
-    cout << "Dia:" << Tnuevo.deadline.day << endl;
     Tnuevo.deadline.month=strtol(linea.data(), nullptr, 10);
     if(linea[1] != '/')
     linea.erase(linea.begin());
     linea.erase(linea.begin());linea.erase(linea.begin());
-    cout << "Mes: " << Tnuevo.deadline.month << endl;
-    cout << "Lista" << linea << endl;
     Tnuevo.deadline.year=strtol(linea.data(), nullptr, 10);
-    cout << "Año: " << Tnuevo.deadline.year << endl;
     linea.erase(linea.begin());linea.erase(linea.begin());linea.erase(linea.begin());linea.erase(linea.begin());linea.erase(linea.begin());
         //Guarda si esta hecho o no
         hecho = linea[0];
@@ -554,7 +549,6 @@ bool verification;
     //Si ha habido fallos
     if(!verification){
         Lnuevo.tasks.push_back(Tnuevo);
-        cout << "Correcto" << endl;
     }
 }
 
@@ -563,7 +557,7 @@ void importdatos(ifstream &fichero,ToDo &Lprojects){
     Project Pnuevo;//Guarda los proyectos del fichero
     Task Tnuevo;//Guarda las tasks del fichero
     List Lnuevo;//Guarda las listas del fichero
-
+    bool centinela = false;
     getline(fichero, leido);
     do{
     switch (leido[0]){
@@ -589,14 +583,22 @@ void importdatos(ifstream &fichero,ToDo &Lprojects){
         //Guarda el nombre de la list
         getline(fichero, leido);
         while(leido[0] != '@' && leido[0] != '>' && leido.size() != 0){
+        cout << "He entrado con " << leido << endl;
+        centinela = true;
         if(leido[0] != '@' && leido[0] != '>' && leido.size() != 0){
             recogerdato(fichero, Lnuevo, leido);
             getline(fichero, leido);
         }
         }
+
         Pnuevo.lists.push_back(Lnuevo); 
         cout << Lnuevo.tasks.size() << endl;
         cout << "Sucede" << endl;
+        if((leido[0] == '@' || leido[0] == '>') && centinela == true){
+            Lnuevo.tasks.erase(Lnuevo.tasks.begin(), Lnuevo.tasks.end());
+            Lnuevo.name = "";
+            cout << "Me he metido"<< Lnuevo.tasks.size() << endl;
+        }
         break;
     //Termina el proyecto
     case '>': 
@@ -605,8 +607,9 @@ void importdatos(ifstream &fichero,ToDo &Lprojects){
         Pnuevo.id=Lprojects.nextId;
         Lprojects.nextId++;
         Lprojects.projects.push_back(Pnuevo);
-        cout << "Vosse so exitosso" << endl;
-        //cout << "numero de proyectos" << Lprojects.projects.size() << endl;
+        Pnuevo.lists.erase(Pnuevo.lists.begin(), Pnuevo.lists.end());
+        Pnuevo.description = "";
+        Pnuevo.name = "";
         }
         getline(fichero, leido);
         break;
@@ -871,7 +874,7 @@ void saveData(){
 }
 
 
-void sumador(Project proyecto,int total,int hechos){
+void sumador(Project proyecto,int &total,int &hechos){
     total = 0;
     hechos = 0;
     for(unsigned i=0; i<proyecto.lists.size();i++){
