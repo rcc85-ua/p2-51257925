@@ -864,9 +864,64 @@ void exportProject(ToDo Lprojects){
             break;
     }
 }
+void loadBinList(Binproject BinP,ifstream &fichero){
+    BinList BinL[BinP];
+    for(unsigned j = 0; j< BinP[i].numLists; j++){
+        fichero.read((char *)&BinL, sizeof(BinL));
+        cout << BinL[j].name << "  " << BinL[j].numTasks << endl;
+    }
+}
+void loadBinprojects(BinToDo BinT,ifstream &fichero){
+    BinProject BinP[BinT.numProjects];
+    for(unsigned i = 0; i < BinT.numProjects; i++){
+    fichero.read((char *)&BinP, sizeof(BinProject));
+    cout << BinP[i].name << "    " << BinP[i].description << "   " << BinP[i].numLists << endl;
+    //BinLists(name, numTasks)
+    loadBinList(BinP[i], fichero);
 
-void loadData(){
+    //Bintasks(name, deadline, isDone, time)
+    }
+}
+void loadData(ToDo &Lprojects){
+    string nombre;
+    ifstream fichero;
+    char confirm;
+    bool centinela;
+    BinToDo Binprojects;
 
+    cout << "Enter filename: ";
+    getline(cin, nombre);
+    fichero.open(nombre.c_str());
+    if(fichero.is_open()){
+        do{
+        cout << "Confirm [Y/N]?: ";
+        cin >> confirm;
+        switch (confirm)
+        {
+        case 'Y': 
+        case 'y':
+            Lprojects.projects.erase(Lprojects.projects.begin(), Lprojects.projects.end());
+            Lprojects.name = "";
+            Lprojects.nextId = 1;
+            centinela = true;
+            fichero.read((char *)&Binprojects, sizeof(BinToDo));
+            cout << Binprojects.name << "    " << Binprojects.numProjects << endl;
+            loadBinprojects(Binprojects, fichero);
+            break;
+        case 'N':
+        case 'n':
+            
+            centinela = true;
+            break;
+        default:
+            centinela =false;
+            break;
+        }
+        }while(centinela == false);
+        fichero.close();
+    }else{
+        error(ERR_FILE);
+    }
 }
 
 void saveData(){
@@ -920,7 +975,7 @@ do{
             break;
         case '5': exportProject(LProjects);
             break;
-        case '6': loadData();
+        case '6': loadData(LProjects);
             break;
         case '7': saveData();
             break;
