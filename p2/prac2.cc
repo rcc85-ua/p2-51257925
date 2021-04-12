@@ -864,23 +864,62 @@ void exportProject(ToDo Lprojects){
             break;
     }
 }
-void loadBinList(Binproject BinP,ifstream &fichero){
-    BinList BinL[BinP];
-    for(unsigned j = 0; j< BinP[i].numLists; j++){
-        fichero.read((char *)&BinL, sizeof(BinL));
-        cout << BinL[j].name << "  " << BinL[j].numTasks << endl;
+void loadBinTask(BinList BinL,List &DLista, ifstream &fichero){
+    BinTask BinT;
+    Task DTask;
+
+    for(int k = 0; k < (int)BinL.numTasks; k++){
+        //Lee la info de la task
+        fichero.read((char *)&BinT, sizeof(BinT));
+        DTask.name = BinT.name;
+        DTask.deadline = BinT.deadline;
+        DTask.isDone = BinT.isDone;
+        DTask.time = BinT.time;
+        cout << "Task " << k << BinT.name << "  " << BinT.deadline.day << "/" << BinT.deadline.month << "/" << BinT.deadline.year << "  "
+        << BinT.isDone << "   " << BinT.time << endl;
+        DLista.tasks.push_back(DTask);
+        DTask.name = "";
     }
 }
-void loadBinprojects(BinToDo BinT,ifstream &fichero){
-    BinProject BinP[BinT.numProjects];
-    for(unsigned i = 0; i < BinT.numProjects; i++){
-    fichero.read((char *)&BinP, sizeof(BinProject));
-    cout << BinP[i].name << "    " << BinP[i].description << "   " << BinP[i].numLists << endl;
-    //BinLists(name, numTasks)
-    loadBinList(BinP[i], fichero);
-
-    //Bintasks(name, deadline, isDone, time)
+void loadBinList(Project &Dproyecto, BinProject BinP ,ifstream &fichero){
+    BinList BinL;
+    List DLista;
+    //Recorre todas las listas
+    for(int j = 0; j< (int)BinP.numLists; j++){
+        //Lee el nombre de la listas
+        fichero.read((char *)&BinL, sizeof(BinL));
+        DLista.name = BinL.name;
+        cout<< "Lista " << j << BinL.name << "  " << BinL.numTasks << endl;
+        loadBinTask(BinL,DLista,  fichero);
+        Dproyecto.lists.push_back(DLista);
+        DLista.tasks.clear();
+        DLista.name = "";
     }
+}
+ToDo loadBinprojects(BinToDo &BinT,ifstream &fichero){
+    //Guardar la informacion del proyecto, listas, tasks
+    Project Dproyecto;
+    ToDo DToDo;
+    BinProject BinP;
+    int num=1;
+    fichero.read((char *) &BinT, sizeof(BinT));
+    DToDo.name = BinT.name;
+    DToDo.nextId = BinT.numProjects; 
+    for(int i=0; i< BinT.numProjects; i++){
+    fichero.read((char *) &BinP, sizeof(BinP));
+    Dproyecto.name = BinT.name;
+    Dproyecto.description = BinP.description;
+    cout << "ToDo " << i << BinT.name << "   " << BinT.numProjects << endl;
+    //BinLists(name, numTasks)
+    loadBinList(Dproyecto, BinP, fichero);
+    Dproyecto.id = num;
+    num++;
+    //Bintasks(name, deadline, isDone, time)
+    DToDo.projects.push_back(Dproyecto);
+    Dproyecto.lists.clear();
+    Dproyecto.name.clear();
+    }
+    return DToDo;
 }
 void loadData(ToDo &Lprojects){
     string nombre;
@@ -904,9 +943,8 @@ void loadData(ToDo &Lprojects){
             Lprojects.name = "";
             Lprojects.nextId = 1;
             centinela = true;
-            fichero.read((char *)&Binprojects, sizeof(BinToDo));
-            cout << Binprojects.name << "    " << Binprojects.numProjects << endl;
-            loadBinprojects(Binprojects, fichero);
+
+            Lprojects = loadBinprojects(Binprojects, fichero);
             break;
         case 'N':
         case 'n':
@@ -923,9 +961,28 @@ void loadData(ToDo &Lprojects){
         error(ERR_FILE);
     }
 }
+/*
+BinToDo convertidorfijo(ToDo Lprojects){
+    BinToDo BToDo;
+    //Lprojects.name.c_str()
+    strncpy(BToDo.name, Lprojects.name, KMAXNAME-1);
+    BToDo.name[KMAXNAME-1] = '\0';
+    fichero.write((const char *)&BToDo.name, BToDo.name);
+    for(unsigned i = 0; i< BToDo.numProjects; i++)
+}*/
+void saveData(ToDo Lprojects){
+   /* string nombre;
+    ofstream fichero;
+    cout << "Enter filename: ";
+    getline(cin, nombre);
+    fichero.open(nombre, ios::binary);
+    if(fichero.is_open()){
+        convertidorfijo(Lprojects);
+        fichero.write((const char *))
 
-void saveData(){
-
+    }else{
+        error(ERR_FILE);
+    }*/
 }
 
 
@@ -934,7 +991,6 @@ void sumador(Project proyecto,int &total,int &hechos){
     hechos = 0;
     for(unsigned i=0; i<proyecto.lists.size();i++){
         for(unsigned j=0; j<proyecto.lists[i].tasks.size();j++){
-            cout << "Proyectos: " << proyecto.lists.size() << "-" <<proyecto.lists[i].tasks.size() << endl;
             if(proyecto.lists[i].tasks[j].isDone){
                 hechos++;
             }
@@ -977,7 +1033,7 @@ do{
             break;
         case '6': loadData(LProjects);
             break;
-        case '7': saveData();
+        case '7': saveData(LProjects);
             break;
         case '8': Summary(LProjects);
             break;
@@ -992,4 +1048,4 @@ do{
 return 0;
 }
  
-//4 horas
+//16 horas
