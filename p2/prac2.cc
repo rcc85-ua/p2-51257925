@@ -961,28 +961,61 @@ void loadData(ToDo &Lprojects){
         error(ERR_FILE);
     }
 }
-/*
+void convertask(Task tarea){
+    BinTask Btarea;
+   Btarea.name = tarea.name.c_str();
+   // strncpy(Btarea.name, tarea.name, KMAXNAME-1);
+    Btarea.name[KMAXNAME-1] = '\0';
+    Btarea.deadline = tarea.deadline;
+    Btarea.isDone = tarea.isDone;
+    Btarea.time = tarea.time;
+    Btarea((const char*)&Btarea, Btarea);
+}
+void convertlist(List lista){
+    BinList Blista;
+    strncpy(Blista.name, lista.name, KMAXNAME-1);
+    Blista.name[KMAXNAME-1] = '\0';
+    Blista.numTasks = lista.tasks.size();
+    Blista((const char  *)&Blista, Blista);
+    for(unsigned i = 0; i< lista.tasks.size(); i++){
+        convertask(lista.tasks[i]);
+    }
+}
+void convertprojects(Project proyecto){
+    BinProject BProject;
+    BProject.description = proyecto.toCharArray();
+//    strncpy(BProject.description, proyecto.description, KMAXDESC-1);
+    proyecto.description[KMAXDESC-1] = '\0';
+    strncpy(BProject.name, proyecto.name, KMAXNAME-1);
+    BProject.numLists = proyecto.lists.size();
+    fichero.write((const char *)&BProject, BProject);
+    for(unsigned i=0; i < proyecto.lists.size();i++){
+        convertlist(proyecto.lists[i]);
+    }
+}
 BinToDo convertidorfijo(ToDo Lprojects){
     BinToDo BToDo;
     //Lprojects.name.c_str()
     strncpy(BToDo.name, Lprojects.name, KMAXNAME-1);
     BToDo.name[KMAXNAME-1] = '\0';
-    fichero.write((const char *)&BToDo.name, BToDo.name);
-    for(unsigned i = 0; i< BToDo.numProjects; i++)
-}*/
+    BToDo.numProjects = Lprojects.projects.size();
+    fichero.write((const char *)&BToDo, BToDo);
+    for(unsigned i = 0; i< Lprojects.projects.size(); i++){
+        convertprojects(Lprojects[i]);
+    }
+}
 void saveData(ToDo Lprojects){
-   /* string nombre;
+    string nombre;
     ofstream fichero;
     cout << "Enter filename: ";
     getline(cin, nombre);
     fichero.open(nombre, ios::binary);
     if(fichero.is_open()){
         convertidorfijo(Lprojects);
-        fichero.write((const char *))
-
+        fichero.close();
     }else{
         error(ERR_FILE);
-    }*/
+    }
 }
 
 
