@@ -193,7 +193,7 @@ bool CompDeadLine(Task nueva){
             case 12:
                 if(nueva.deadline.day<0 || nueva.deadline.day>31){
                     error(ERR_DATE);
-                    cout << "En el 1" << endl;
+
                     centinela = true;
                 }
                 break;
@@ -202,13 +202,11 @@ bool CompDeadLine(Task nueva){
                 if((nueva.deadline.year%100 == 0 && nueva.deadline.year%400 == 0) || (nueva.deadline.year%100 != 0 && nueva.deadline.year%4 == 0)){
                     if (nueva.deadline.day<0 || nueva.deadline.day > 29){
                         error(ERR_DATE);
-                        cout << "En el dos" << endl;
                         centinela = true;
                     }
                 }else{
                     if (nueva.deadline.day<0 || nueva.deadline.day > 28){
                         error(ERR_DATE);
-                        cout << "En el tres" << endl;
                         centinela = true;
                     }
                 }
@@ -220,14 +218,14 @@ bool CompDeadLine(Task nueva){
             case 11:
                 if (nueva.deadline.day<0 || nueva.deadline.day > 30){
                     error(ERR_DATE);
-                    cout << "En el 4" << endl;
+
                     centinela = true;
                 }
                 break;
 
             default:
                 error(ERR_DATE);
-                cout << "En el 5" << endl;
+
                 centinela = true;
                 break;
        }
@@ -502,7 +500,7 @@ void mostrar(Task task){
 void recogerdato(ifstream &fichero,List  &Lnuevo,string linea){
 char hecho;
 Task Tnuevo;
-bool verification;
+bool verification = false;
     //Guarda el nombre
     for(unsigned i=0;i<linea.size() && linea[0] != '|'; i++){//----Muchas cosas|27/04/2020---4/2/2010
         Tnuevo.name.push_back(linea[0]);
@@ -678,10 +676,10 @@ int CompMenu(ToDo Proyectos,int id){
     return resultado;
 }
 
-void ProjectMenu(ToDo Proyectos){
+void ProjectMenu(ToDo &Proyectos){
     int id, Pos;
     
-    cout << "Enter project id: ";
+    cout << "Enter project  id: ";
     cin >> id;
     cin.get();
     Pos = CompMenu(Proyectos, id);
@@ -694,7 +692,7 @@ void ProjectMenu(ToDo Proyectos){
 string compProjectEmpty(){
     string proyecto;
     do{
-        cout << "Enter project name:  ";
+        cout << "Enter project  name: ";
         getline(cin,proyecto);
         if(proyecto.empty()){
             error(ERR_EMPTY);
@@ -720,7 +718,7 @@ void addProject(ToDo &LProjects){
     if(compProjectRepeat(LProjects, nuevo.name)){
         error(ERR_PROJECT_NAME);
     }else{
-        cout << "Enter project description: ";
+        cout << "Enter project  description: ";
         getline(cin, nuevo.description);
         nuevo.id = LProjects.nextId;
         LProjects.projects.push_back(nuevo);
@@ -742,7 +740,7 @@ int Compid(ToDo LProjects,int borrar){
 void deleteProject(ToDo &LProjects){
     int borrar;
     
-    cout << "Enter project id: ";
+    cout << "Enter project id:";
     cin >> borrar;
     borrar = Compid(LProjects, borrar);
     if(borrar != -1){
@@ -778,8 +776,9 @@ void exportaficheros(ofstream &fichero, ToDo LProjects){
         fichero << "#" << LProjects.projects[i].name << endl;
         if(!LProjects.projects[i].description.empty()){
             fichero << "*" << LProjects.projects[i].description << endl;
-        }
+        }            cout << "num de list:" << LProjects.projects[i].lists.size();
         for(unsigned j=0; j< LProjects.projects[i].lists.size();j++){
+            cout << "NUm de task registrado: " << LProjects.projects[i].lists[j].tasks.size();
             fichero << "@" << LProjects.projects[i].lists[j].name << endl;
             for(unsigned k = 0; k < LProjects.projects[i].lists[j].tasks.size();k++){
                 fichero << LProjects.projects[i].lists[j].tasks[k].name << "|"
@@ -794,6 +793,7 @@ void exportaficheros(ofstream &fichero, ToDo LProjects){
                 fichero << "|" << LProjects.projects[i].lists[j].tasks[k].time << endl;
             }
         }
+       fichero << ">" << endl;
     }
 }
 void imprimidorTask(Task tarea, ofstream &fichero){
@@ -818,6 +818,7 @@ void exportafichero(ofstream &fichero, ToDo proyecto,int pos){
         }
         fichero << ">" << endl;
     }
+    if(proyecto.projects[pos].lists.size() == 0) fichero << ">" << endl;
 }
 void exportProject(ToDo Lprojects){
     char resp;
@@ -826,13 +827,13 @@ void exportProject(ToDo Lprojects){
     string nombre;
     ofstream fichero;
     do{
-    cout << "Save all projects [Y/N]?: ";
+    cout << "Save all projects [Y/N]?:";
     cin >> resp;
     }while(resp != 'Y' && resp != 'y' && resp != 'N' && resp != 'n');
     switch(resp){
         case 'N':
         case 'n':
-        cout << "Enter project id: ";
+        cout << "Enter project id:";
         cin >> id;
         cin.get();
         pos = FindProjectid(Lprojects, id );
@@ -875,8 +876,7 @@ void loadBinTask(BinList BinL,List &DLista, ifstream &fichero){
         DTask.deadline = BinT.deadline;
         DTask.isDone = BinT.isDone;
         DTask.time = BinT.time;
-        cout << "Task " << k << BinT.name << "  " << BinT.deadline.day << "/" << BinT.deadline.month << "/" << BinT.deadline.year << "  "
-        << BinT.isDone << "   " << BinT.time << endl;
+
         DLista.tasks.push_back(DTask);
         DTask.name = "";
     }
@@ -889,7 +889,6 @@ void loadBinList(Project &Dproyecto, BinProject BinP ,ifstream &fichero){
         //Lee el nombre de la listas
         fichero.read((char *)&BinL, sizeof(BinL));
         DLista.name = BinL.name;
-        cout<< "Lista " << j << BinL.name << "  " << BinL.numTasks << endl;
         loadBinTask(BinL,DLista,  fichero);
         Dproyecto.lists.push_back(DLista);
         DLista.tasks.clear();
@@ -905,11 +904,11 @@ ToDo loadBinprojects(BinToDo &BinT,ifstream &fichero){
     fichero.read((char *) &BinT, sizeof(BinT));
     DToDo.name = BinT.name;
     DToDo.nextId = BinT.numProjects; 
+    cout << "numproj" << BinT.numProjects << endl;
     for(int i=0; i< BinT.numProjects; i++){
     fichero.read((char *) &BinP, sizeof(BinP));
     Dproyecto.name = BinT.name;
     Dproyecto.description = BinP.description;
-    cout << "ToDo " << i << BinT.name << "   " << BinT.numProjects << endl;
     //BinLists(name, numTasks)
     loadBinList(Dproyecto, BinP, fichero);
     Dproyecto.id = num;
@@ -939,11 +938,15 @@ void loadData(ToDo &Lprojects){
         {
         case 'Y': 
         case 'y':
+        cout << "Hola" << endl;
             Lprojects.projects.erase(Lprojects.projects.begin(), Lprojects.projects.end());
             Lprojects.name = "";
             Lprojects.nextId = 1;
             centinela = true;
-
+            cout << "OwO" << endl;
+            fichero.read((char *) &Binprojects.name, sizeof(Binprojects.name));
+            fichero.read((char *) &Binprojects.numProjects, Binprojects.numProjects);
+            cout << Binprojects.name << "   " << (int)Binprojects.numProjects;
             Lprojects = loadBinprojects(Binprojects, fichero);
             break;
         case 'N':
@@ -961,47 +964,50 @@ void loadData(ToDo &Lprojects){
         error(ERR_FILE);
     }
 }
-void convertask(Task tarea){
-    BinTask Btarea;
-   Btarea.name = tarea.name.c_str();
-   // strncpy(Btarea.name, tarea.name, KMAXNAME-1);
+
+void recortada(){
+
+}
+void convertask(Task tarea, ofstream &fichero){
+   BinTask Btarea;
+
+    strncpy(Btarea.name, tarea.name.c_str(), KMAXNAME-1);
     Btarea.name[KMAXNAME-1] = '\0';
     Btarea.deadline = tarea.deadline;
     Btarea.isDone = tarea.isDone;
     Btarea.time = tarea.time;
-    Btarea((const char*)&Btarea, Btarea);
+    fichero.write((const char*)&Btarea, sizeof(Btarea));
 }
-void convertlist(List lista){
+void convertlist(List lista, ofstream &fichero){
     BinList Blista;
-    strncpy(Blista.name, lista.name, KMAXNAME-1);
+    strncpy(Blista.name, lista.name.c_str(), KMAXNAME-1);
     Blista.name[KMAXNAME-1] = '\0';
     Blista.numTasks = lista.tasks.size();
-    Blista((const char  *)&Blista, Blista);
+    fichero.write((const char  *)&Blista, sizeof(Blista));
     for(unsigned i = 0; i< lista.tasks.size(); i++){
-        convertask(lista.tasks[i]);
+        convertask(lista.tasks[i], fichero);
     }
 }
-void convertprojects(Project proyecto){
+void convertprojects(Project proyecto, ofstream &fichero){
     BinProject BProject;
-    BProject.description = proyecto.toCharArray();
-//    strncpy(BProject.description, proyecto.description, KMAXDESC-1);
+    strncpy(BProject.description, proyecto.description.c_str(), KMAXDESC-1);
     proyecto.description[KMAXDESC-1] = '\0';
-    strncpy(BProject.name, proyecto.name, KMAXNAME-1);
+    strncpy(BProject.name, proyecto.name.c_str(), KMAXNAME-1);
     BProject.numLists = proyecto.lists.size();
-    fichero.write((const char *)&BProject, BProject);
+    fichero.write((const char *)&BProject, sizeof(BProject));
     for(unsigned i=0; i < proyecto.lists.size();i++){
-        convertlist(proyecto.lists[i]);
+        convertlist(proyecto.lists[i], fichero);
     }
 }
-BinToDo convertidorfijo(ToDo Lprojects){
+BinToDo convertidorfijo(ToDo Lprojects, ofstream &fichero){
     BinToDo BToDo;
     //Lprojects.name.c_str()
-    strncpy(BToDo.name, Lprojects.name, KMAXNAME-1);
+    strncpy(BToDo.name, Lprojects.name.c_str(), KMAXNAME-1);
     BToDo.name[KMAXNAME-1] = '\0';
     BToDo.numProjects = Lprojects.projects.size();
-    fichero.write((const char *)&BToDo, BToDo);
+    fichero.write((const char *)&BToDo, sizeof(BToDo));
     for(unsigned i = 0; i< Lprojects.projects.size(); i++){
-        convertprojects(Lprojects[i]);
+        convertprojects(Lprojects.projects[i], fichero);
     }
 }
 void saveData(ToDo Lprojects){
@@ -1011,7 +1017,7 @@ void saveData(ToDo Lprojects){
     getline(cin, nombre);
     fichero.open(nombre, ios::binary);
     if(fichero.is_open()){
-        convertidorfijo(Lprojects);
+        convertidorfijo(Lprojects, fichero);
         fichero.close();
     }else{
         error(ERR_FILE);
