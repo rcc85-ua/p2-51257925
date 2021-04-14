@@ -510,16 +510,16 @@ bool verification = false;
     //Fecha del task
     Tnuevo.deadline.day=strtol(linea.data(), nullptr, 10);
     if(linea[1] != '/'){
-    linea.erase(linea.begin());
+        linea.erase(linea.begin());
     }
     linea.erase(linea.begin()); // 04/2020
-    linea.erase(linea.begin()); // 4/2020
+    linea.erase(linea.begin()); 
     Tnuevo.deadline.month=strtol(linea.data(), nullptr, 10);
     if(linea[1] != '/')
-    linea.erase(linea.begin());
-    linea.erase(linea.begin());linea.erase(linea.begin());
-    Tnuevo.deadline.year=strtol(linea.data(), nullptr, 10);
-    linea.erase(linea.begin());linea.erase(linea.begin());linea.erase(linea.begin());linea.erase(linea.begin());linea.erase(linea.begin());
+        linea.erase(linea.begin());
+        linea.erase(linea.begin());linea.erase(linea.begin());
+        Tnuevo.deadline.year=strtol(linea.data(), nullptr, 10);
+        linea.erase(linea.begin());linea.erase(linea.begin());linea.erase(linea.begin());linea.erase(linea.begin());linea.erase(linea.begin());
         //Guarda si esta hecho o no
         hecho = linea[0];
         linea.erase(linea.begin());
@@ -551,7 +551,7 @@ bool verification = false;
 }
 
 void importdatos(ifstream &fichero,ToDo &Lprojects){
-    string leido;
+    string leido = "";
     Project Pnuevo;//Guarda los proyectos del fichero
     Task Tnuevo;//Guarda las tasks del fichero
     List Lnuevo;//Guarda las listas del fichero
@@ -581,7 +581,6 @@ void importdatos(ifstream &fichero,ToDo &Lprojects){
         //Guarda el nombre de la list
         getline(fichero, leido);
         while(leido[0] != '@' && leido[0] != '>' && leido.size() != 0){
-        cout << "He entrado con " << leido << endl;
         centinela = true;
         if(leido[0] != '@' && leido[0] != '>' && leido.size() != 0){
             recogerdato(fichero, Lnuevo, leido);
@@ -591,7 +590,6 @@ void importdatos(ifstream &fichero,ToDo &Lprojects){
 
         Pnuevo.lists.push_back(Lnuevo); 
         cout << Lnuevo.tasks.size() << endl;
-        cout << "Sucede" << endl;
         if((leido[0] == '@' || leido[0] == '>') && centinela == true){
             Lnuevo.tasks.erase(Lnuevo.tasks.begin(), Lnuevo.tasks.end());
             Lnuevo.name = "";
@@ -754,15 +752,13 @@ void deleteProject(ToDo &LProjects){
 void importProject(ToDo &Lprojects){
     ifstream fichero;
     string nombre;
-    bool checker = false;
     
     cout << "Enter filename: ";
     getline(cin, nombre);
     fichero.open(nombre.c_str());
     if(fichero.is_open()){
 
-        while (!checker){
-            checker = fichero.eof();
+        while (!fichero.eof()){
             importdatos(fichero,Lprojects);
         }
     }else{
@@ -899,24 +895,21 @@ ToDo loadBinprojects(BinToDo &BinT,ifstream &fichero){
     //Guardar la informacion del proyecto, listas, tasks
     Project Dproyecto;
     ToDo DToDo;
+    DToDo.name = "My ToDo List";
     BinProject BinP;
-    int num=1;
-    fichero.read((char *) &BinT, sizeof(BinT));
     DToDo.name = BinT.name;
-    DToDo.nextId = BinT.numProjects; 
-    cout << "numproj" << BinT.numProjects << endl;
-    for(int i=0; i< BinT.numProjects; i++){
-    fichero.read((char *) &BinP, sizeof(BinP));
-    Dproyecto.name = BinT.name;
-    Dproyecto.description = BinP.description;
-    //BinLists(name, numTasks)
-    loadBinList(Dproyecto, BinP, fichero);
-    Dproyecto.id = num;
-    num++;
-    //Bintasks(name, deadline, isDone, time)
-    DToDo.projects.push_back(Dproyecto);
-    Dproyecto.lists.clear();
-    Dproyecto.name.clear();
+    DToDo.nextId = 1; 
+    for(unsigned i=0; i< BinT.numProjects; i++){
+        fichero.read((char *) &BinP, sizeof(BinProject));
+        Dproyecto.name = BinP.name;
+        Dproyecto.description = BinP.description;
+        loadBinList(Dproyecto, BinP, fichero);
+        Dproyecto.id = DToDo.nextId;
+        DToDo.nextId++;
+        //Bintasks(name, deadline, isDone, time)
+        DToDo.projects.push_back(Dproyecto);
+        Dproyecto.lists.clear();
+        Dproyecto.name.clear();
     }
     return DToDo;
 }
@@ -938,15 +931,11 @@ void loadData(ToDo &Lprojects){
         {
         case 'Y': 
         case 'y':
-        cout << "Hola" << endl;
-            Lprojects.projects.erase(Lprojects.projects.begin(), Lprojects.projects.end());
+            Lprojects.projects.clear();
             Lprojects.name = "";
             Lprojects.nextId = 1;
             centinela = true;
-            cout << "OwO" << endl;
-            fichero.read((char *) &Binprojects.name, sizeof(Binprojects.name));
-            fichero.read((char *) &Binprojects.numProjects, Binprojects.numProjects);
-            cout << Binprojects.name << "   " << (int)Binprojects.numProjects;
+            fichero.read((char *) &Binprojects, sizeof(BinToDo));
             Lprojects = loadBinprojects(Binprojects, fichero);
             break;
         case 'N':
@@ -991,21 +980,22 @@ void convertlist(List lista, ofstream &fichero){
 void convertprojects(Project proyecto, ofstream &fichero){
     BinProject BProject;
     strncpy(BProject.description, proyecto.description.c_str(), KMAXDESC-1);
-    proyecto.description[KMAXDESC-1] = '\0';
+    BProject.description[KMAXDESC-1] = '\0';
     strncpy(BProject.name, proyecto.name.c_str(), KMAXNAME-1);
     BProject.numLists = proyecto.lists.size();
+    BProject.name[KMAXNAME-1] = '\0';
     fichero.write((const char *)&BProject, sizeof(BProject));
     for(unsigned i=0; i < proyecto.lists.size();i++){
         convertlist(proyecto.lists[i], fichero);
     }
 }
-BinToDo convertidorfijo(ToDo Lprojects, ofstream &fichero){
+void convertidorfijo(ToDo Lprojects, ofstream &fichero){
     BinToDo BToDo;
     //Lprojects.name.c_str()
     strncpy(BToDo.name, Lprojects.name.c_str(), KMAXNAME-1);
     BToDo.name[KMAXNAME-1] = '\0';
     BToDo.numProjects = Lprojects.projects.size();
-    fichero.write((const char *)&BToDo, sizeof(BToDo));
+    fichero.write((const char *)&BToDo, sizeof(BinToDo));
     for(unsigned i = 0; i< Lprojects.projects.size(); i++){
         convertprojects(Lprojects.projects[i], fichero);
     }
@@ -1049,6 +1039,7 @@ void Summary(ToDo &LProjects){
 
 int main(){
 ToDo LProjects;
+LProjects.name = "My ToDo List";
 Project toDoList;
 toDoList.id=1;
 char option;
