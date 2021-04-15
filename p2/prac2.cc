@@ -1025,12 +1025,6 @@ void Summary(ToDo &LProjects){
     }
 }
 
-void startchecker(int argc, char* argv[],ToDo Lprojects);
-for(unsigned i = 0; i< argc; i++){
-    if(argv[1] == "-l"){
-        saveData(Lprojects, argv[2]);
-    }
-}
 
 int main(int argc/*numero de comandos*/, char*argv[]/*Posición*/){
 ToDo LProjects;
@@ -1038,9 +1032,22 @@ LProjects.name = "My ToDo list";
 Project toDoList;
 toDoList.id=1;
 char option;
+string nombre;
 //-i fichero de texto
 //-l fichero binario
-startchecker(argc, argv[], LProjects);
+/*for(int i = 0; i < argc; i++){
+    cout << i << argv[i] << endl;
+}
+
+if(argc >= 2){
+    //Error de si el primer parametro esta mal introducido
+    if(strcmp(argv[1], "-l") == 0 ||  strcmp(argv[1], "-i")){
+
+    }else{
+        error(ERR_ARGS);
+    }
+    
+}*/
 LProjects.nextId = 1;
 
 do{
