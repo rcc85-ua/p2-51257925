@@ -6,6 +6,7 @@
 #include <cstdlib>
 #include <string.h>
 #include <fstream>
+#include <sstream>
 using namespace std;
 
 const int KMAXNAME = 20;
@@ -454,7 +455,7 @@ void report(const Project &toDoList){
     for(unsigned i = 0; i< toDoList.lists.size();i++){
         cout << toDoList.lists[i].name << endl;
         for(unsigned j = 0; j< toDoList.lists[i].tasks.size();j++){
-            if(toDoList.lists[i].tasks[j].isDone == false){
+            if(!toDoList.lists[i].tasks[j].isDone){
                 mostrar(toDoList.lists[i].tasks[j]);
                 tNoHechas += toDoList.lists[i].tasks[j].time;
                 noHechas ++;
@@ -497,37 +498,26 @@ void mostrar(Task task){
 ********** FUNCIONES PRACTICA 2 *******************
 **************************************************/
 //Imprime el menu nuevo
-void recogerdato(ifstream &fichero,List  &Lnuevo,string linea){
+void recogerdato(ifstream &fichero,List  &Lnuevo,string linea){ //Write code|1/8/2021|F|120
 char hecho;
 Task Tnuevo;
+stringstream Buffer(linea);
 bool verification = false;
     //Guarda el nombre
-    for(unsigned i=0;i<linea.size() && linea[0] != '|'; i++){//----Muchas cosas|27/04/2020---4/2/2010
-        Tnuevo.name.push_back(linea[0]);
-        linea.erase(linea.begin());// |27/04/2020
-    }
-    linea.erase(linea.begin());// 27/04/2020
-    //Fecha del task
-    Tnuevo.deadline.day=strtol(linea.data(), nullptr, 10);
-    if(linea[1] != '/'){
-        linea.erase(linea.begin());
-    }
-    linea.erase(linea.begin()); // 04/2020
-    linea.erase(linea.begin()); 
-    Tnuevo.deadline.month=strtol(linea.data(), nullptr, 10);
-    if(linea[1] != '/')
-        linea.erase(linea.begin());
-        linea.erase(linea.begin());linea.erase(linea.begin());
-        Tnuevo.deadline.year=strtol(linea.data(), nullptr, 10);
-        linea.erase(linea.begin());linea.erase(linea.begin());linea.erase(linea.begin());linea.erase(linea.begin());linea.erase(linea.begin());
-        //Guarda si esta hecho o no
-        hecho = linea[0];
-        linea.erase(linea.begin());
-        linea.erase(linea.begin());
-    //Tiempo del Task
-    //Guarda el tiempo
-    Tnuevo.time = strtol(linea.data(), nullptr, 10);
+    getline(Buffer, Tnuevo.name, '|');//1/8/2021|F|120
 
+    //Fecha del task
+    Buffer >> Tnuevo.deadline.day;///8/2021|F|120
+    Buffer.get();//8/2021|F|120
+    Buffer >> Tnuevo.deadline.month;///2021|F|120
+    Buffer.get();//2021|F|120
+    Buffer >> Tnuevo.deadline.year;//|F|120
+    Buffer.get();//F|120
+    //Tiempo del Task
+    Buffer >> hecho;//|120
+    Buffer.get();
+    Buffer >> Tnuevo.time;
+    //Guarda el tiempo
     //Si la fecha no es correcta
     if(CompDeadLine(Tnuevo)){
         verification =true;
@@ -538,9 +528,11 @@ bool verification = false;
         verification = true;
     }
     if(hecho == 'T'){
+        cout << "Es verdad" << endl;
         Tnuevo.isDone = true;
     }
     if(hecho != 'F'){
+        cout << "Es falso" << endl;
         Tnuevo.isDone = false;
     }
     //Incluye los datos
@@ -593,7 +585,6 @@ void importdatos(ifstream &fichero,ToDo &Lprojects){
         if((leido[0] == '@' || leido[0] == '>') && centinela == true){
             Lnuevo.tasks.erase(Lnuevo.tasks.begin(), Lnuevo.tasks.end());
             Lnuevo.name = "";
-            cout << "Me he metido"<< Lnuevo.tasks.size() << endl;
         }
         break;
     //Termina el proyecto
@@ -632,7 +623,7 @@ cout << "1- Project menu" << endl
 }
 
 //Imprime El menu antiguo
-Project OldMenu(Project &Proyecto){
+void OldMenu(Project &Proyecto){
 char option;
 
 do{
@@ -658,7 +649,6 @@ do{
         break;
     }
 }while(option!='b');
-return Proyecto;
 }
 
 //Comprueba que el proyecto existe
@@ -684,7 +674,7 @@ void ProjectMenu(ToDo &Proyectos){
     if(Pos == -1){
         error(ERR_ID);
     }else{
-        Proyectos.projects[Pos]=OldMenu(Proyectos.projects[Pos]);
+        OldMenu(Proyectos.projects[Pos]);
     }
 }
 string compProjectEmpty(){
@@ -751,7 +741,7 @@ void deleteProject(ToDo &LProjects){
 
 void importProject(ToDo &Lprojects){
     ifstream fichero;
-    string nombre;
+    string nombre ="";
     
     cout << "Enter filename: ";
     getline(cin, nombre);
@@ -991,6 +981,7 @@ void convertprojects(Project proyecto, ofstream &fichero){
 }
 void convertidorfijo(ToDo Lprojects, ofstream &fichero){
     BinToDo BToDo;
+    Lprojects.name = "My ToDo list";
     //Lprojects.name.c_str()
     strncpy(BToDo.name, Lprojects.name.c_str(), KMAXNAME-1);
     BToDo.name[KMAXNAME-1] = '\0';
@@ -1000,11 +991,8 @@ void convertidorfijo(ToDo Lprojects, ofstream &fichero){
         convertprojects(Lprojects.projects[i], fichero);
     }
 }
-void saveData(ToDo Lprojects){
-    string nombre;
-    ofstream fichero;
-    cout << "Enter filename: ";
-    getline(cin, nombre);
+void saveData(ToDo Lprojects,const char* nombre){
+ofstream fichero;
     fichero.open(nombre, ios::binary);
     if(fichero.is_open()){
         convertidorfijo(Lprojects, fichero);
@@ -1037,13 +1025,22 @@ void Summary(ToDo &LProjects){
     }
 }
 
-int main(){
+void startchecker(int argc, char* argv[],ToDo Lprojects);
+for(unsigned i = 0; i< argc; i++){
+    if(argv[1] == "-l"){
+        saveData(Lprojects, argv[2]);
+    }
+}
+
+int main(int argc/*numero de comandos*/, char*argv[]/*Posición*/){
 ToDo LProjects;
-LProjects.name = "My ToDo List";
+LProjects.name = "My ToDo list";
 Project toDoList;
 toDoList.id=1;
 char option;
-
+//-i fichero de texto
+//-l fichero binario
+startchecker(argc, argv[], LProjects);
 LProjects.nextId = 1;
 
 do{
@@ -1063,7 +1060,10 @@ do{
             break;
         case '6': loadData(LProjects);
             break;
-        case '7': saveData(LProjects);
+        case '7': 
+            cout << "Enter filename: " << endl;
+            getline(cin,nombre);
+            saveData(LProjects, nombre.c_str());
             break;
         case '8': Summary(LProjects);
             break;
