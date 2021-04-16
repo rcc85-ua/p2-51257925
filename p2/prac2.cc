@@ -523,7 +523,7 @@ bool verification = false;
         verification =true;
     }
     //Si el tiempo no es correcto
-    if(Tnuevo.time<1 && Tnuevo.time>180 && !verification){
+    if(Tnuevo.time<1 || Tnuevo.time>180 || !verification){
         error(ERR_TIME);
         verification = true;
     }
@@ -531,7 +531,7 @@ bool verification = false;
         cout << "Es verdad" << endl;
         Tnuevo.isDone = true;
     }
-    if(hecho != 'F'){
+    if(hecho == 'F'){
         cout << "Es falso" << endl;
         Tnuevo.isDone = false;
     }
@@ -739,13 +739,13 @@ void deleteProject(ToDo &LProjects){
 }
 
 
-void importProject(ToDo &Lprojects){
+bool importProject(ToDo &Lprojects, const char* nombre){
     ifstream fichero;
-    string nombre ="";
-    
+    bool prueba = false;
+    /*
     cout << "Enter filename: ";
-    getline(cin, nombre);
-    fichero.open(nombre.c_str());
+    getline(cin, nombre);*/
+    fichero.open(nombre);
     if(fichero.is_open()){
 
         while (!fichero.eof()){
@@ -753,8 +753,10 @@ void importProject(ToDo &Lprojects){
         }
     }else{
     error(ERR_FILE);
+    prueba = true;
     }
     fichero.close();
+    return prueba;
 }
 void exportaficheros(ofstream &fichero, ToDo LProjects){    
     for(unsigned i=0;i<LProjects.projects.size();i++){
@@ -991,15 +993,18 @@ void convertidorfijo(ToDo Lprojects, ofstream &fichero){
         convertprojects(Lprojects.projects[i], fichero);
     }
 }
-void saveData(ToDo Lprojects,const char* nombre){
+bool saveData(ToDo Lprojects,const char* nombre){
 ofstream fichero;
+bool prueba = false;
     fichero.open(nombre, ios::binary);
     if(fichero.is_open()){
         convertidorfijo(Lprojects, fichero);
         fichero.close();
     }else{
         error(ERR_FILE);
+        prueba = true;
     }
+    return prueba;
 }
 
 
@@ -1032,56 +1037,102 @@ LProjects.name = "My ToDo list";
 Project toDoList;
 toDoList.id=1;
 char option;
+bool verification = false;
 string nombre;
 //-i fichero de texto
 //-l fichero binario
 /*for(int i = 0; i < argc; i++){
     cout << i << argv[i] << endl;
-}
-
-if(argc >= 2){
-    //Error de si el primer parametro esta mal introducido
+    cout << "argc: " << argc << endl;
+}*/
+//Si hay argumentos
+if(argc > 1){
+    //Si tiene los mismos parametros error(si solo hay un parametro entra)
+    if(strcmp(argv[1], argv[3]) != 0){
+        //Si el primer parametro esta bien
     if(strcmp(argv[1], "-l") == 0 ||  strcmp(argv[1], "-i")){
-
+        //Si hay un segundo parametro
+        if(argc >= 4){
+        //Si el segundo parametro es binario
+        if( strcmp(argv[3], "-l") == 0){
+            verification = saveData(LProjects, argv[4]);
+            //Si el primer parametro es txt
+            if(strcmp(argv[1], "-i") == 0){
+                verification = importProject(LProjects, argv[2]);
+            }
+        //Si el segundo fichero no es binario
+        }else{
+            //Si es fichero txt
+            if(strcmp(argv[3], "-i") == 0){
+                verification = saveData(LProjects, argv[3]);
+                verification = importProject(LProjects, argv[1]);
+            //Error en tipo de datos
+            }else{
+                error(ERR_ARGS);
+                verification = true;
+            }
+        }
+        //Si cantidad de parametros incorrecta
+        }else{
+            if(strcmp(argv[1], "-l") == 0){
+                verification = saveData(LProjects, argv[1]);
+            }else{ 
+                if(strcmp(argv[1], "-i") == 0){
+                    verification = importProject(LProjects, argv[1]);
+                }else{
+                    error(ERR_ARGS);
+                    verification = true;
+                }
+            }
+            
+        }
+        //Si introduce un tipo erroneo
     }else{
         error(ERR_ARGS);
+        verification = true;
     }
-    
-}*/
+    }else{
+        error(ERR_ARGS);
+        verification = true;
+    }
+}
 LProjects.nextId = 1;
-
-do{
-    NewMenu();
-    cin >> option;
-    cin.get();
-    switch(option){
-        case '1': ProjectMenu(LProjects);
-            break;
-        case '2': addProject(LProjects);
-            break;
-        case '3': deleteProject(LProjects);
-            break;
-        case '4': importProject(LProjects);
-            break;
-        case '5': exportProject(LProjects);
-            break;
-        case '6': loadData(LProjects);
-            break;
-        case '7': 
-            cout << "Enter filename: " << endl;
-            getline(cin,nombre);
-            saveData(LProjects, nombre.c_str());
-            break;
-        case '8': Summary(LProjects);
-            break;
-        case 'q':
-            break;
-        default:
-            error(ERR_OPTION);
-            break;
-    }
-}while (option != 'q');
-
+if(!verification){
+    do{
+        NewMenu();
+        cin >> option;
+        cin.get();
+        switch(option){
+            case '1': ProjectMenu(LProjects);
+                break;
+            case '2': addProject(LProjects);
+                break;
+            case '3': deleteProject(LProjects);
+                break;
+            case '4': 
+                cout << "Enter filename: " << endl;
+                getline(cin, nombre);
+                importProject(LProjects, nombre.c_str());
+                break;
+            case '5': exportProject(LProjects);
+                break;
+            case '6': loadData(LProjects);
+                break;
+            case '7': 
+                cout << "Enter filename: " << endl;
+                getline(cin,nombre);
+                saveData(LProjects, nombre.c_str());
+                break;
+            case '8': Summary(LProjects);
+                break;
+            case 'q':
+                break;
+            default:
+                error(ERR_OPTION);
+                break;
+        }
+    }while (option != 'q');
+}
 return 0;
 }
  
