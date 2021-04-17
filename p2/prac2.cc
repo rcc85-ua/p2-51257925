@@ -507,10 +507,10 @@ bool verification = false;
     getline(Buffer, Tnuevo.name, '|');//1/8/2021|F|120
 
     //Fecha del task
-    Buffer >> Tnuevo.deadline.day;///8/2021|F|120
-    Buffer.get();//8/2021|F|120
+    Buffer >> Tnuevo.deadline.day; ///8/2021|F|120
+    Buffer.get(); //8/2021|F|120
     Buffer >> Tnuevo.deadline.month;///2021|F|120
-    Buffer.get();//2021|F|120
+    Buffer.get(); //2021|F|120
     Buffer >> Tnuevo.deadline.year;//|F|120
     Buffer.get();//F|120
     //Tiempo del Task
@@ -523,18 +523,12 @@ bool verification = false;
         verification =true;
     }
     //Si el tiempo no es correcto
-    if(Tnuevo.time<1 || Tnuevo.time>180 || !verification){
+    if(!verification && (Tnuevo.time < 1 || Tnuevo.time > 180)){
         error(ERR_TIME);
         verification = true;
     }
-    if(hecho == 'T'){
-        cout << "Es verdad" << endl;
-        Tnuevo.isDone = true;
-    }
-    if(hecho == 'F'){
-        cout << "Es falso" << endl;
-        Tnuevo.isDone = false;
-    }
+    if(hecho == 'T') Tnuevo.isDone = true;
+    else if(hecho == 'F') Tnuevo.isDone = false;
     //Incluye los datos
     //Si ha habido fallos
     if(!verification){
@@ -550,6 +544,7 @@ void importdatos(ifstream &fichero,ToDo &Lprojects){
     bool centinela = false;
     getline(fichero, leido);
     do{
+        //cout << "##" << leido << endl;
     switch (leido[0]){
     //Empieza un nuevo proyecto
     case '<':
@@ -581,7 +576,7 @@ void importdatos(ifstream &fichero,ToDo &Lprojects){
         }
 
         Pnuevo.lists.push_back(Lnuevo); 
-        cout << Lnuevo.tasks.size() << endl;
+        //cout << Lnuevo.tasks.size() << endl;
         if((leido[0] == '@' || leido[0] == '>') && centinela == true){
             Lnuevo.tasks.erase(Lnuevo.tasks.begin(), Lnuevo.tasks.end());
             Lnuevo.name = "";
@@ -589,6 +584,7 @@ void importdatos(ifstream &fichero,ToDo &Lprojects){
         break;
     //Termina el proyecto
     case '>': 
+    //cout << "HOLA LLEGUÉ AL FINAL" << endl;
         getline(fichero, leido);
         if(FindProject(Lprojects, Pnuevo.name) == -1){
         Pnuevo.id=Lprojects.nextId;
@@ -747,26 +743,26 @@ bool importProject(ToDo &Lprojects, const char* nombre){
     getline(cin, nombre);*/
     fichero.open(nombre);
     if(fichero.is_open()){
-
         while (!fichero.eof()){
             importdatos(fichero,Lprojects);
         }
     }else{
-    error(ERR_FILE);
-    prueba = true;
+        error(ERR_FILE);
+        prueba = true;
     }
     fichero.close();
     return prueba;
 }
+
 void exportaficheros(ofstream &fichero, ToDo LProjects){    
     for(unsigned i=0;i<LProjects.projects.size();i++){
         fichero << "<" << endl;
         fichero << "#" << LProjects.projects[i].name << endl;
         if(!LProjects.projects[i].description.empty()){
             fichero << "*" << LProjects.projects[i].description << endl;
-        }            cout << "num de list:" << LProjects.projects[i].lists.size();
+        }            //cout << "num de list:" << LProjects.projects[i].lists.size();
         for(unsigned j=0; j< LProjects.projects[i].lists.size();j++){
-            cout << "NUm de task registrado: " << LProjects.projects[i].lists[j].tasks.size();
+            //cout << "NUm de task registrado: " << LProjects.projects[i].lists[j].tasks.size();
             fichero << "@" << LProjects.projects[i].lists[j].name << endl;
             for(unsigned k = 0; k < LProjects.projects[i].lists[j].tasks.size();k++){
                 fichero << LProjects.projects[i].lists[j].tasks[k].name << "|"
@@ -949,7 +945,7 @@ void loadData(ToDo &Lprojects){
 void recortada(){
 
 }
-void convertask(Task tarea, ofstream &fichero){
+void convertask(Task &tarea, ofstream &fichero){
    BinTask Btarea;
 
     strncpy(Btarea.name, tarea.name.c_str(), KMAXNAME-1);
@@ -959,7 +955,7 @@ void convertask(Task tarea, ofstream &fichero){
     Btarea.time = tarea.time;
     fichero.write((const char*)&Btarea, sizeof(Btarea));
 }
-void convertlist(List lista, ofstream &fichero){
+void convertlist(List &lista, ofstream &fichero){
     BinList Blista;
     strncpy(Blista.name, lista.name.c_str(), KMAXNAME-1);
     Blista.name[KMAXNAME-1] = '\0';
@@ -969,7 +965,7 @@ void convertlist(List lista, ofstream &fichero){
         convertask(lista.tasks[i], fichero);
     }
 }
-void convertprojects(Project proyecto, ofstream &fichero){
+void convertprojects(Project &proyecto, ofstream &fichero){
     BinProject BProject;
     strncpy(BProject.description, proyecto.description.c_str(), KMAXDESC-1);
     BProject.description[KMAXDESC-1] = '\0';
@@ -981,7 +977,7 @@ void convertprojects(Project proyecto, ofstream &fichero){
         convertlist(proyecto.lists[i], fichero);
     }
 }
-void convertidorfijo(ToDo Lprojects, ofstream &fichero){
+void convertidorfijo(ToDo &Lprojects, ofstream &fichero){
     BinToDo BToDo;
     Lprojects.name = "My ToDo list";
     //Lprojects.name.c_str()
@@ -993,14 +989,15 @@ void convertidorfijo(ToDo Lprojects, ofstream &fichero){
         convertprojects(Lprojects.projects[i], fichero);
     }
 }
-bool saveData(ToDo Lprojects,const char* nombre){
-ofstream fichero;
-bool prueba = false;
+bool saveData(ToDo &Lprojects,const char* nombre){
+    ofstream fichero;
+    bool prueba = false;
     fichero.open(nombre, ios::binary);
     if(fichero.is_open()){
         convertidorfijo(Lprojects, fichero);
         fichero.close();
-    }else{
+    }
+    else{
         error(ERR_FILE);
         prueba = true;
     }
@@ -1031,14 +1028,14 @@ void Summary(ToDo &LProjects){
 }
 
 
-int main(int argc/*numero de comandos*/, char*argv[]/*PosiciÃ³n*/){
+int main(int argc, char* argv[]){
 ToDo LProjects;
 LProjects.name = "My ToDo list";
 Project toDoList;
-toDoList.id=1;
+LProjects.nextId = 1;
 char option;
-bool verification = false;
 string nombre;
+bool verification = false;
 //-i fichero de texto
 //-l fichero binario
 /*for(int i = 0; i < argc; i++){
@@ -1047,56 +1044,40 @@ string nombre;
 }*/
 //Si hay argumentos
 if(argc > 1){
-    //Si tiene los mismos parametros error(si solo hay un parametro entra)
-    if(strcmp(argv[1], argv[3]) != 0){
-        //Si el primer parametro esta bien
-    if(strcmp(argv[1], "-l") == 0 ||  strcmp(argv[1], "-i")){
-        //Si hay un segundo parametro
-        if(argc >= 4){
-        //Si el segundo parametro es binario
-        if( strcmp(argv[3], "-l") == 0){
-            verification = saveData(LProjects, argv[4]);
-            //Si el primer parametro es txt
-            if(strcmp(argv[1], "-i") == 0){
-                verification = importProject(LProjects, argv[2]);
-            }
-        //Si el segundo fichero no es binario
-        }else{
-            //Si es fichero txt
-            if(strcmp(argv[3], "-i") == 0){
-                verification = saveData(LProjects, argv[3]);
-                verification = importProject(LProjects, argv[1]);
-            //Error en tipo de datos
-            }else{
-                error(ERR_ARGS);
-                verification = true;
-            }
-        }
-        //Si cantidad de parametros incorrecta
-        }else{
-            if(strcmp(argv[1], "-l") == 0){
-                verification = saveData(LProjects, argv[1]);
-            }else{ 
-                if(strcmp(argv[1], "-i") == 0){
-                    verification = importProject(LProjects, argv[1]);
-                }else{
-                    error(ERR_ARGS);
-                    verification = true;
-                }
-            }
-            
-        }
-        //Si introduce un tipo erroneo
-    }else{
+    if(!(argc <= 5 && argc % 2 != 0 && (strcmp(argv[1], "-l") == 0 || strcmp(argv[1], "-i") == 0))){
         error(ERR_ARGS);
-        verification = true;
+        exit(-1);
     }
-    }else{
-        error(ERR_ARGS);
-        verification = true;
+    if(argc > 3){
+        if((strcmp(argv[3], "-l") != 0 && strcmp(argv[3], "-i") != 0) 
+            || (strcmp(argv[1], "-l") == 0 && strcmp(argv[3], "-l") == 0)
+            || (strcmp(argv[1], "-i") == 0 && strcmp(argv[3], "-i") == 0)) {
+                error(ERR_ARGS);
+                exit(-1);
+        }
+        if(strcmp(argv[3], "-l") != 0){
+            
+            verification = saveData(LProjects, argv[4]);
+            verification = importProject(LProjects, argv[2]);
+
+        }
+        else if(strcmp(argv[1], "-l") != 0){
+            verification = saveData(LProjects, argv[2]);
+            verification = importProject(LProjects, argv[4]);
+        }
+    }
+    else{
+        if(strcmp(argv[1], "-l") == 0){
+            //cout << "El archivo es: " << argv[2] << endl;
+            verification = saveData(LProjects, argv[2]);
+        }
+        else{
+            //cout << "El archivo es: " << argv[2] << endl;
+            verification = importProject(LProjects, argv[2]);
+        }
     }
 }
-LProjects.nextId = 1;
+//cout << "OJO!: " << LProjects.nextId << endl;
 if(!verification){
     do{
         NewMenu();
@@ -1110,7 +1091,7 @@ if(!verification){
             case '3': deleteProject(LProjects);
                 break;
             case '4': 
-                cout << "Enter filename: " << endl;
+                cout << "Enter filename: ";
                 getline(cin, nombre);
                 importProject(LProjects, nombre.c_str());
                 break;
@@ -1119,7 +1100,7 @@ if(!verification){
             case '6': loadData(LProjects);
                 break;
             case '7': 
-                cout << "Enter filename: " << endl;
+                cout << "Enter filename: ";
                 getline(cin,nombre);
                 saveData(LProjects, nombre.c_str());
                 break;
