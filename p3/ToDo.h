@@ -3,10 +3,12 @@
 
 #include <iostream>
 #include <string.h>
+#include "project.h"
 
 class ToDo{
     protected:
     int nextId = 1;
+    vector <project> projects;
     string name;
     public:
     ToDo(string nombre);
@@ -18,5 +20,5 @@ class ToDo{
     void deleteProject(int id = 0);
     void setProjectDescription(string name, string project);
     void projectMenu(int id = 0);
-    friend operator<< ostream&;
+    ostream operator<<(ostream &os, ToDo &ToDo);
 }

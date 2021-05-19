@@ -584,7 +584,7 @@ void importdatos(ifstream &fichero,ToDo &Lprojects){
         break;
     //Termina el proyecto
     case '>': 
-    //cout << "HOLA LLEGUÉ AL FINAL" << endl;
+    //cout << "HOLA LLEGUï¿½ AL FINAL" << endl;
         getline(fichero, leido);
         if(FindProject(Lprojects, Pnuevo.name) == -1){
         Pnuevo.id=Lprojects.nextId;

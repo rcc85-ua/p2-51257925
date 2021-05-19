@@ -12,24 +12,24 @@ struct Date{
 
 
 class Task{
-    public:
-    Task(string nombre);//Constructor
-    string getName() const;
-    Date getDeadline() const;
-    bool getisDone() const;
-    int getTime() const;
-    void setName(string nombre);
-    void setDeadline(string fechalim);
-    void setTime(int tiempo);
-    void Toggle();
-    ostream& operator<<(ostream &os,const Task &task);
-
-
     protected:
     string name;
     Date deadline;
     bool isDone;
     int time;
+
+    public:
+    Task(string name);//Constructor
+    string getName() const;
+    Date getDeadline() const;
+    bool getisDone() const;
+    int getTime() const;
+    void setName(string name);
+    void setDeadline(string fechalim);
+    void setTime(int tiempo);
+    void Toggle();
+    ostream operator<<(ostream &os, Task &Task);
 }
+
 
 #endif

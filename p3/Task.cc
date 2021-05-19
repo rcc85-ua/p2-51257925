@@ -2,11 +2,11 @@
 #include <string.h>
 #include <sstream>
 
-Task::Task(string nombre){
-    strcpy(name, nombre);
+Task::Task(string name){
+    this->name = name;
     deadline.day = 1;
     deadline.month = 1;
-    deadline.year = 1;
+    deadline.year = 2000;
     time = 1;
     isDone = false;
 }
@@ -19,11 +19,11 @@ int Task::getTime(){
 bool Task::getisDone(){
     return isDone;
 }
-int Task::getTime(){
-    return time;
+Date Task::getDeadline(){
+    return deadline;
 }
-void Task::setName(string nombre){
-    strcpy(name, nombre);
+void Task::setName(string name){
+    this->name = name;
     }
 
 void Task::setDeadline(string fechalim){
