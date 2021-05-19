@@ -7,18 +7,18 @@
 
 class ToDo{
     protected:
-    int nextId = 1;
-    vector <project> projects;
-    string name;
+        static const int nextId;
+        vector <Project*> projects;
+        string name;
     public:
-    ToDo(string nombre);
-    string getName() const;
-    int getPosProject(string nombre) const;
-    int getPosProject(int i) const;
-    bool setName(string name);
-    void addProject(project Project*);
-    void deleteProject(int id = 0);
-    void setProjectDescription(string name, string project);
-    void projectMenu(int id = 0);
-    ostream operator<<(ostream &os, ToDo &ToDo);
+        ToDo(string name);
+        string getName() const;
+        int getPosProject(string name) const;
+        int getPosProject(int i) const;
+        bool setName(string name);
+        void addProject(project Project*);
+        void deleteProject(int id = 0);
+        void setProjectDescription(string name, string project);
+        void projectMenu(int id = 0);
+        ostream operator<<(ostream &os, ToDo &ToDo);
 }

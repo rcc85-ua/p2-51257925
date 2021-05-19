@@ -3,38 +3,37 @@
 #include "Util.h"
 #include <string.h>
 
+static const int nextId= 1;
 
-ToDo::ToDo(string nombre){
-    strcpy(name, nombre);
-
+ToDo::ToDo(string name){
+    this->name = name;
 }
 
-string getName(){
+string ToDo::getName(){
     return name;
 }
-int getPosproject(string name){
-    int resultado = -1;
 
-    for(unsigned i=0; i< ToDo.projects.size(); i++){
-        if(ToDo.projects.name = name){
-            resultado = i;
-        }
-    }
-}
-int getPosproject(int id){
+int ToDo::getPosProject(string name){
     int resultado = -1;
-    string name;
 
     for(unsigned i=0; i< projects.size(); i++){
-        name = ToDo.projects[i].name;
-        if(ToDo.projects.name = name){
+        if(projects[i]->getName() = name)
             resultado = i;
-        }
     }
-    return i;
+    return resultado;
 }
 
-bool setName(string name){
+int ToDo::getPosProject(int id){
+    int resultado = -1;
+
+    for(unsigned i=0; i< projects.size(); i++){
+        if(projects[i]->getId())
+            resultado = i;
+    }
+    return resultado;
+}
+
+bool ToDo::setName(string name){
     bool resultado = false;
 
     if(name.empty(){
@@ -48,21 +47,19 @@ bool setName(string name){
     return resultado;
 }
 
-void addProject(Project *project){
-    Project project;
+void ToDo::addProject(Project *project){
 
     for(unsigned i = 0; i < projects.size(); i++{
         if(projects[i].name == project*.name){
-            trow ERR_POJECT_NAME;
+            throw ERR_POJECT_NAME;
         }
     }
-    this-> project = project*;
-    project.id = nextId;
+    project->id = nextId;
     nextId++;
-    projects.push_back(this->project);
+    projects.push_back(project*); //asterisco mirar(no se si esta bien o no u.u)
 }
 
-void deleteProject(int id){
+void ToDo::deleteProject(int id){
     int borrar = -1;
     int id;
     if(id == 0){

@@ -1,28 +1,29 @@
-#ifndef _PROJECT_H_
-#define _PROJECT_H_
+#ifndef _LIST_H_
+#define _LIST_H_
 
 #include <iostream>
-#include <string.h>
 #include <vector>
 #include "Task.h"
-class List{
-    protected:
-    string name;
-    vector <Task> tasks;
-    public:
-    List(string nombre);
-    string getName() const;
-    vector<Tasks> getTasks() const;
-    unsigned getNumTasks() const;
-    unsigned getNumDone() const;
-    int getTimeTasks() const;
-    int getTimeDone() const;
-    int getPosTask(string name) const;
-    bool setName(string nombre);
-    void addTask(const Task &Task);
-    bool deleteTask(string nombre);
-    bool toggleTask(string nombre);
-    ostream operator<<(ostream &os, List &List);
 
-}
+class List{
+    
+    friend ostream& operator<<(ostream &os, List &list);
+    protected:
+        string name;
+        vector <Task> tasks;
+    public:
+        List(string name);
+        string getName() const;
+        vector<Task> getTasks() const;
+        unsigned getNumTasks() const;
+        unsigned getNumDone() const;
+        int getTimeTasks() const;
+        int getTimeDone() const;
+        int getPosTask(string name) const;
+        bool setName(string name);
+        void addTask(const Task &task);
+        bool deleteTask(string name);
+        bool toggleTask(string name);
+
+};
 #endif
