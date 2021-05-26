@@ -331,19 +331,24 @@ do{
             break;
         case 'b':   
         break;
+        default:
+            Util::error(ERR_OPTION);
+
     }
 }while(option!='b');
 }
 
 string Project::summary()const {
     int suma=0, suma2=0;
+    string final;
     stringstream resultado;
             for(unsigned i = 0; i< lists.size(); i++){
             suma += lists[i].getNumDone();
             suma2 += lists[i].getNumTasks();
         }
-        resultado << "(" << getId() << ")" << getName() << "[" << suma << "/" << suma2 << "]";
-        return resultado.str();
+        resultado << "(" << getId() << ") " << getName() << " [" << suma << "/" << suma2 << "]";
+        getline(resultado, final);
+        return final;
 }
 ostream& operator<<(ostream &os,const Project &project){
     //Imprime el nombre del proyecto

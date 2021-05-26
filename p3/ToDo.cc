@@ -28,7 +28,7 @@ int ToDo::getPosProject(int id)const {
     int resultado = -1;
 
     for(unsigned i=0; i< projects.size(); i++){
-        if(projects[i]->getId())
+        if(projects[i]->getId() == id)
             resultado = i;
     }
     return resultado;
