@@ -10,19 +10,19 @@ Task::Task(string name){
     isDone = false;
 }
 
-string Task::getName(){
+string Task::getName()const {
     return name;
 }
 
-int Task::getTime(){
+int Task::getTime()const {
     return time;
 }
 
-bool Task::getIsDone(){
+bool Task::getIsDone()const {
     return isDone;
 }
 
-Date Task::getDeadline(){
+Date Task::getDeadline()const{
     return deadline;
 }
 
@@ -31,10 +31,10 @@ void Task::setName(string name){
 }
 
 bool Task::CompDeadLine(Date fecha){
-    bool centinela = false;
+    bool centinela = true;
+
     if ((fecha.year>2100 || fecha.year<2000)){
-        error(ERR_DATE);
-        centinela = true;
+        centinela = false;
     }
     else{
         switch (fecha.month){
@@ -45,23 +45,20 @@ bool Task::CompDeadLine(Date fecha){
             case 8 :
             case 10:
             case 12:
-                if(fecha.day<0 || fecha.day>31){
-                    error(ERR_DATE);
+                if(fecha.day<1 || fecha.day>31){
 
-                    centinela = true;
+                    centinela = false;
                 }
                 break;
 
             case 2:
                 if((fecha.year%100 == 0 && fecha.year%400 == 0) || (fecha.year%100 != 0 && fecha.year%4 == 0)){
-                    if (fecha.day<0 || fecha.day > 29){
-                        error(ERR_DATE);
-                        centinela = true;
+                    if (fecha.day<1 || fecha.day > 29){
+                        centinela = false;
                     }
                 }else{
-                    if (fecha.day<0 || fecha.day > 28){
-                        error(ERR_DATE);
-                        centinela = true;
+                    if (fecha.day<1 || fecha.day > 28){
+                        centinela = false;
                     }
                 }
                 break;
@@ -70,17 +67,15 @@ bool Task::CompDeadLine(Date fecha){
             case 6 :
             case 9 :
             case 11:
-                if (fecha.day<0 || fecha.day > 30){
-                    error(ERR_DATE);
+                if (fecha.day<1 || fecha.day > 30){
 
-                    centinela = true;
+                    centinela = false;
                 }
                 break;
 
             default:
-                error(ERR_DATE);
 
-                centinela = true;
+                centinela = false;
                 break;
        }
     }
@@ -88,10 +83,11 @@ bool Task::CompDeadLine(Date fecha){
     return centinela;
 }
 
-void Task::setDeadline(string deadline){
+bool Task::setDeadline(string deadline){
     Date fecha;
     bool ok = true;
     stringstream buffer(deadline);
+    bool resultado = false;
 
     buffer >> fecha.day;
     buffer.get();
@@ -99,34 +95,41 @@ void Task::setDeadline(string deadline){
     buffer.get();
     buffer >> fecha.year;
     ok = CompDeadLine(fecha);
-    if(ok)
+    if(ok){
         this->deadline = fecha;
-    else
+        resultado= true;
+    }else
         Util::error(ERR_DATE);
+    return resultado;
 }
 
-void Task::setTime(int time){
+bool Task::setTime(int time){
+    bool resultado = false;
+
     if(time < 1 || time > 180)
         Util::error(ERR_TIME);
-    else
+    else{
         this->time = time;
-
+        resultado = true;
+    }
+    return resultado;
+}
 void Task::toggle(){
     isDone = !isDone;
 }
 
-ostream operator<<(ostream &os, Task &task){
+ostream& operator<<(ostream &os,const Task &task){
     Date fecha;
     
     os << "[";
-    if(task.getIsDone()){
+    if(task.isDone){
         os << "X";
     }else{
         os << " ";
     }
-    os << "] (" << task.getTime() << ") ";
-    fecha = task.getDeadline();
-    os << fecha.year << "-" << fecha.month << "-" << fecha.day << " : " << task.getName();
+    os << "] (" << task.time << ") ";
+    fecha = task.deadline;
+    os << fecha.year << "-" << fecha.month << "-" << fecha.day << " : " << task.name;
     return os;
 }
 

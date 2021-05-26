@@ -3,22 +3,24 @@
 
 #include <iostream>
 #include <string.h>
-#include "project.h"
+#include "Project.h"
 
 class ToDo{
+    friend ostream& operator<<(ostream &os, const ToDo &ToDO);
     protected:
-        static const int nextId;
+        static int nextId;
         vector <Project*> projects;
         string name;
+        int CompMenu( int id);
     public:
         ToDo(string name);
         string getName() const;
         int getPosProject(string name) const;
         int getPosProject(int i) const;
         bool setName(string name);
-        void addProject(project Project*);
+        void addProject(Project* Project);
         void deleteProject(int id = 0);
-        void setProjectDescription(string name, string project);
+        void setProjectDescription(string name, string description);
         void projectMenu(int id = 0);
-        ostream operator<<(ostream &os, ToDo &ToDo);
-}
+};
+#endif

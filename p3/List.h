@@ -7,7 +7,7 @@
 
 class List{
     
-    friend ostream& operator<<(ostream &os, List &list);
+    friend ostream& operator<<(ostream &os,const List &list);
     protected:
         string name;
         vector <Task> tasks;

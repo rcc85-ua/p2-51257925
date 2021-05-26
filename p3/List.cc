@@ -6,19 +6,19 @@ List::List(string name){
     }
     this->name = name;
 }
-string List::getName(){
-    return name;
+string List::getName()const {
+    return name; 
 }
 
-vector<Tasks> List::getTasks(){
+vector<Task> List::getTasks()const {
     return tasks;
 }
 
-unsigned List::getNumTasks(){
+unsigned List::getNumTasks()const {
     return tasks.size();
 }
 
-unsigned List::getNumDone(){
+unsigned List::getNumDone()const {
     unsigned num = 0;
     for(unsigned i=0; i< tasks.size(); i++){
         if(tasks[i].getIsDone())
@@ -27,7 +27,7 @@ unsigned List::getNumDone(){
     return num;
 }
 
-int List::getTimeTasks(){
+int List::getTimeTasks()const {
     int total = 0;
     
     for(unsigned i=0; i< tasks.size(); i++){
@@ -36,7 +36,7 @@ int List::getTimeTasks(){
     return total;
 }
 
-int List::getTimeDone(){
+int List::getTimeDone()const {
     int sumatorio = 0;
 
     for(unsigned i = 0; i < tasks.size(); i++){
@@ -47,7 +47,7 @@ int List::getTimeDone(){
     return sumatorio;
 }
 
-int List::getPosTask(string name){
+int List::getPosTask(string name)const {
     int pos = -1;
     for(unsigned i = 0; i < tasks.size(); i++){
         if(name == tasks[i].getName()){
@@ -69,7 +69,7 @@ bool List::setName(string name){
 }
 
 void List::addTask(const Task &task){
-    this-> tasks.push_back(task);
+    tasks.push_back(task);
 }
 
 bool List::deleteTask(string name){
@@ -103,16 +103,17 @@ bool List::toggleTask(string name){
     return found;
 }
 
-ostream operator<<(ostream &os, List &list){
+ostream& operator<<(ostream &os, const List &list){
     os << list.name << endl;
     for(unsigned i=0; i< list.tasks.size();i++){
-        if(!tasks[i].getIsDone()){
-            os << task[i] << endl;
+        if(!list.tasks[i].getIsDone()){
+            os << list.tasks[i] << endl;
         }
     }
     for(unsigned i=0; i< list.tasks.size();i++){
-        if(tasks[i].getIsDone()){
-            os << task[i] << endl;
+        if(list.tasks[i].getIsDone()){
+            os << list.tasks[i] << endl;
         }
     }
+    return os;
 }

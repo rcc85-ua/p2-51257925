@@ -14,13 +14,14 @@ struct Date{
 
 class Task{
     
-    friend ostream& operator<<(ostream &os, Task &task);
+    friend ostream& operator<<(ostream &os,const Task &task);
     protected:
         string name;
         Date deadline;
         bool isDone;
         int time;
         bool CompDeadLine(Date fecha); //A lo mejor hay que ponerle const
+        string CompLista();
 
     public:
         Task(string name); //Constructor
