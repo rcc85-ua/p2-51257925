@@ -49,12 +49,10 @@ bool ToDo::setName(string name){
 }
 
 void ToDo::addProject(Project *project){
-
-    for(unsigned i = 0; i < projects.size(); i++){
-        if(projects[i]->getName() == project->getName()){
+    int i=getPosProject(project->getName());
+        if(i!=-1){
             throw ERR_PROJECT_NAME;
         }
-    }
     project->setId(nextId);
     nextId++;
     projects.push_back(project); //asterisco mirar(no se si esta bien o no u.u)
@@ -128,7 +126,7 @@ void ToDo::projectMenu(int id){
 }
 ostream& operator<<(ostream &os,const ToDo &ToDo){
     for(unsigned i=0; i < ToDo.projects.size(); i++){
-        os << ToDo.projects[i] << endl;
+        os << ToDo.projects[i]->summary() << endl;
     }
     return os;
 }

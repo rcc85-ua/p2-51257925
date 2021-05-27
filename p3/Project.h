@@ -14,6 +14,7 @@ class Project{
         vector <List> lists;
         int FindList(string name);
         bool CompDeadline(Task nueva);
+        bool comparador(Date urgente, Date potencial);
     
     public:
         

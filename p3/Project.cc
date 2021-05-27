@@ -3,8 +3,12 @@
 
 
     Project::Project(string name, string description){
-        this->name = name;
-        this->description = description;
+        if(name.empty())
+            throw ERR_EMPTY;
+        else{
+            this->name = name;
+            this->description = description;
+        }
     }
 
     int Project::getId()const{
@@ -326,8 +330,6 @@ do{
         case '7': cout << *this << endl;
 
     //Imprime el nombre del proyecto
-    
-
             break;
         case 'b':   
         break;
@@ -340,20 +342,17 @@ do{
 
 string Project::summary()const {
     int suma=0, suma2=0;
-    string final;
     stringstream resultado;
             for(unsigned i = 0; i< lists.size(); i++){
-            suma += lists[i].getNumDone();
-            suma2 += lists[i].getNumTasks();
-        }
-        resultado << "(" << getId() << ") " << getName() << " [" << suma << "/" << suma2 << "]";
-        getline(resultado, final);
-        return final;
+                suma += lists[i].getNumDone();
+                suma2 += lists[i].getNumTasks();
+            }
+    resultado << "(" << id << ") " << name << " [" << suma << "/" << suma2 << "]";
+    return resultado.str();
 }
 ostream& operator<<(ostream &os,const Project &project){
     //Imprime el nombre del proyecto
-    int tHechas = 0, tNoHechas = 0, hechas = 0, noHechas = 0;
-    int centinela = 0;
+    int tHechas = 0, tNoHechas = 0, hechas = 0, noHechas = 0, centinela = 0;
     string Unombre;
     Date Ufecha;
     bool cambio;
@@ -388,7 +387,6 @@ ostream& operator<<(ostream &os,const Project &project){
                         Ufecha=tasks[j].getDeadline();
                         Unombre = tasks[j].getName();
                     }
-
                 }
             }  
         }
@@ -405,4 +403,3 @@ ostream& operator<<(ostream &os,const Project &project){
     }
     return os;
 }
-

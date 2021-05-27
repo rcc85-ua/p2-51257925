@@ -13,7 +13,7 @@ string List::getName()const {
 vector<Task> List::getTasks()const {
     return tasks;
 }
-
+//Devuelve el numero de tareas de esa list
 unsigned List::getNumTasks()const {
     return tasks.size();
 }
